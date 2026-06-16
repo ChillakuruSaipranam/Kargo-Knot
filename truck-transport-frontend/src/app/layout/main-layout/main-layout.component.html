@@ -1,0 +1,55 @@
+<div class="app-shell">
+  <header class="top-bar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="18" width="28" height="16" rx="2" stroke="currentColor" stroke-width="2"/>
+          <path d="M32 22H38L44 28V34H32V22Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <circle cx="14" cy="36" r="4" stroke="currentColor" stroke-width="2"/>
+          <circle cx="38" cy="36" r="4" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </div>
+      <div>
+        <p class="brand-eyebrow">Government of Transport Operations</p>
+        <h1>Truck Transport Management System</h1>
+      </div>
+    </div>
+
+    @if (auth.user(); as user) {
+    <div class="user-panel">
+      <div class="user-meta">
+        <span class="user-name">{{ user.fullName }}</span>
+        <span class="user-role" [class.admin]="user.role === 'Admin'">{{ user.role }}</span>
+      </div>
+      <button type="button" class="btn btn-outline" (click)="logout()">Sign Out</button>
+    </div>
+    }
+  </header>
+
+  <div class="workspace">
+    <aside class="sidebar">
+      <nav aria-label="Main navigation">
+        <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+        <a routerLink="/trips" routerLinkActive="active">Trip Records</a>
+        <a routerLink="/trips/new" routerLinkActive="active">New Trip Entry</a>
+        @if (auth.isAdmin()) {
+          <a routerLink="/admin" routerLinkActive="active">Administration</a>
+        }
+      </nav>
+
+      <div class="sidebar-footer">
+        <p>Official Use Only</p>
+        <small>Authorized personnel access</small>
+      </div>
+    </aside>
+
+    <main class="content">
+      <router-outlet />
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <span>&copy; {{ currentYear }} Truck Transport Management System</span>
+    <span>Confidential — Internal Operations Portal</span>
+  </footer>
+</div>

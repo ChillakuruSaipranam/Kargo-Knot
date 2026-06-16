@@ -1,0 +1,84 @@
+<section class="page-header">
+  <div>
+    <p class="eyebrow">Trip Registration</p>
+    <h2>{{ isEditMode ? 'Edit Trip Record' : 'New Trip Entry' }}</h2>
+    <p class="subtitle">Capture complete transport details for official quarry movement records.</p>
+  </div>
+  <a class="btn btn-secondary" routerLink="/trips">Back to Records</a>
+</section>
+
+<section class="panel">
+  <form class="trip-form" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="form-section">
+      <h3>Schedule & Vehicle</h3>
+      <div class="form-grid">
+        <label>
+          <span>Date</span>
+          <input type="date" formControlName="date" />
+        </label>
+        <label>
+          <span>Shift</span>
+          <select formControlName="shift">
+            <option value="Day">Day</option>
+            <option value="Night">Night</option>
+          </select>
+        </label>
+        <label>
+          <span>Truck Number</span>
+          <input type="text" formControlName="truckNumber" placeholder="MH-12-AB-4521" />
+        </label>
+        <label>
+          <span>Quarry / Crusher Name</span>
+          <input type="text" formControlName="quarryName" placeholder="Stone quarry or crusher name" />
+        </label>
+        <label>
+          <span>Number of Tonnes</span>
+          <input type="number" formControlName="tonnes" min="0" step="0.01" />
+        </label>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>Driver Details</h3>
+      <div class="form-grid">
+        <label>
+          <span>Driver Name</span>
+          <input type="text" formControlName="driverName" placeholder="Full name" />
+        </label>
+        <label>
+          <span>Driver Phone</span>
+          <input type="tel" formControlName="driverPhone" placeholder="+91 98765 43210" />
+        </label>
+        <label>
+          <span>Driver License Number</span>
+          <input type="text" formControlName="driverLicense" placeholder="License ID" />
+        </label>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>Operation Timing</h3>
+      <div class="form-grid two-col">
+        <label>
+          <span>Start Time</span>
+          <input type="time" formControlName="startTime" />
+        </label>
+        <label>
+          <span>End Time</span>
+          <input type="time" formControlName="endTime" />
+        </label>
+      </div>
+    </div>
+
+    @if (submitMessage) {
+      <div class="alert alert-success" role="status">{{ submitMessage }}</div>
+    }
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">
+        {{ isEditMode ? 'Update Trip Record' : 'Register Trip' }}
+      </button>
+      <a class="btn btn-secondary" routerLink="/trips">Cancel</a>
+    </div>
+  </form>
+</section>

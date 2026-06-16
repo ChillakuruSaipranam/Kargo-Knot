@@ -1,0 +1,114 @@
+<section class="page-header">
+  <div>
+    <p class="eyebrow">Records Management</p>
+    <h2>Trip Records</h2>
+    <p class="subtitle">Search and filter transport entries by date, shift, truck, quarry, driver, and tonnage.</p>
+  </div>
+  <a class="btn btn-primary" routerLink="/trips/new">Add Trip Record</a>
+</section>
+
+<section class="panel filter-panel">
+  <header class="panel-header compact">
+    <div>
+      <h3>Filter Records</h3>
+      <p>Refine results using one or more criteria.</p>
+    </div>
+  </header>
+
+  <form class="filter-grid" [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+    <label>
+      <span>Date From</span>
+      <input type="date" formControlName="dateFrom" />
+    </label>
+    <label>
+      <span>Date To</span>
+      <input type="date" formControlName="dateTo" />
+    </label>
+    <label>
+      <span>Shift</span>
+      <select formControlName="shift">
+        <option value="">All Shifts</option>
+        <option value="Day">Day</option>
+        <option value="Night">Night</option>
+      </select>
+    </label>
+    <label>
+      <span>Truck Number</span>
+      <input type="text" formControlName="truckNumber" placeholder="e.g. MH-12-AB-4521" />
+    </label>
+    <label>
+      <span>Quarry / Crusher</span>
+      <input type="text" formControlName="quarryName" placeholder="Search quarry name" />
+    </label>
+    <label>
+      <span>Driver Name</span>
+      <input type="text" formControlName="driverName" placeholder="Search driver" />
+    </label>
+    <label>
+      <span>Min Tonnes</span>
+      <input type="number" formControlName="minTonnes" min="0" step="0.01" />
+    </label>
+    <label>
+      <span>Max Tonnes</span>
+      <input type="number" formControlName="maxTonnes" min="0" step="0.01" />
+    </label>
+
+    <div class="filter-actions">
+      <button class="btn btn-primary" type="submit">Apply Filters</button>
+      <button class="btn btn-secondary" type="button" (click)="resetFilters()">Reset</button>
+    </div>
+  </form>
+</section>
+
+<section class="panel">
+  <header class="panel-header compact">
+    <div>
+      <h3>Results</h3>
+      <p>{{ filteredTrips().length }} record(s) found</p>
+    </div>
+  </header>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Shift</th>
+          <th>Truck No.</th>
+          <th>Quarry / Crusher</th>
+          <th>Tonnes</th>
+          <th>Driver</th>
+          <th>Phone</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (trip of filteredTrips(); track trip.id) {
+          <tr>
+            <td>{{ trip.date }}</td>
+            <td><span class="badge" [class.night]="trip.shift === 'Night'">{{ trip.shift }}</span></td>
+            <td>{{ trip.truckNumber }}</td>
+            <td>{{ trip.quarryName }}</td>
+            <td>{{ trip.tonnes | number: '1.2-2' }}</td>
+            <td>{{ trip.driverName }}</td>
+            <td>{{ trip.driverPhone }}</td>
+            <td>{{ trip.startTime }}</td>
+            <td>{{ trip.endTime }}</td>
+            <td class="actions">
+              <a class="btn btn-text" [routerLink]="['/trips', trip.id, 'edit']">Edit</a>
+              @if (auth.isAdmin()) {
+                <button class="btn btn-text danger" type="button" (click)="deleteTrip(trip.id)">Delete</button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="10" class="empty-row">No records match your filter criteria.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

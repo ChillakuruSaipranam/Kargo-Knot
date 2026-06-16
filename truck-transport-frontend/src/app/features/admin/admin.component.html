@@ -1,0 +1,51 @@
+<section class="page-header">
+  <div>
+    <p class="eyebrow">System Administration</p>
+    <h2>Administration</h2>
+    <p class="subtitle">Manage users, roles, and system configuration. Backend integration required.</p>
+  </div>
+</section>
+
+<section class="panel">
+  <header class="panel-header compact">
+    <div>
+      <h3>User Access Control</h3>
+      <p>Planned for .NET backend with role-based authorization.</p>
+    </div>
+  </header>
+
+  <div class="admin-grid">
+    <article class="admin-card">
+      <h4>Administrator Role</h4>
+      <ul>
+        <li>Create, edit, and delete trip records</li>
+        <li>Manage user accounts</li>
+        <li>View all operational reports</li>
+        <li>Configure quarry and truck master data</li>
+      </ul>
+    </article>
+
+    <article class="admin-card">
+      <h4>Standard User Role</h4>
+      <ul>
+        <li>Create and edit own trip records</li>
+        <li>Search and filter trip data</li>
+        <li>View dashboard summaries</li>
+        <li>No delete or user management access</li>
+      </ul>
+    </article>
+
+    <article class="admin-card">
+      <h4>Backend Endpoints (Planned)</h4>
+      <ul>
+        <li><code>POST /api/auth/login</code></li>
+        <li><code>GET /api/users</code> (Admin)</li>
+        <li><code>POST /api/users</code> (Admin)</li>
+        <li><code>GET /api/trips?filters...</code></li>
+        <li><code>POST /api/trips</code></li>
+        <li><code>PUT /api/trips/:id</code></li>
+        <li><code>DELETE /api/trips/:id</code> (Admin)</li>
+      </ul>
+    </article>
+  </div>
+</section>
