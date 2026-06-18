@@ -26,10 +26,10 @@ services:
       - "8080"
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
-      interval: 15s
+      interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 30s
+      retries: 12
+      start_period: 90s
 
   kargoknot-web:
     image: kargoknot-frontend

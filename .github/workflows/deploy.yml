@@ -49,6 +49,12 @@ jobs:
             /usr/bin/docker-compose up -d --build --remove-orphans
 
             echo "⏳ Waiting for services..."
-            sleep 45
+            sleep 60
+
+            if ! /usr/bin/docker-compose ps | grep -q "kargoknot-api.*Up"; then
+              echo "❌ kargoknot-api failed to start. Logs:"
+              /usr/bin/docker-compose logs --tail=80 kargoknot-api
+              exit 1
+            fi
 
             echo "✅ Deployment completed successfully!"
