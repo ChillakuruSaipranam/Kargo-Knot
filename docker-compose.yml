@@ -1,11 +1,8 @@
 # Kargo Knot stack: Angular (nginx) + .NET API
 # Uses your existing SQL Server container on the VPS (shared Docker network).
 #
-#   cp .env.example .env   # fill secrets + SQLSERVER_NETWORK
+#   cp .env.example .env   # fill in values once on the server
 #   docker compose up -d --build
-#
-# Served at http://yashpc/kargoknot/ — add docker/nginx/vps-host-snippet.conf
-# to your VPS host nginx (alongside the portfolio site on port 80).
 
 services:
   kargoknot-api:
@@ -20,11 +17,8 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__DefaultConnection: Server=${SQLSERVER_HOST:?set SQLSERVER_HOST to your SQL container name},1433;Database=TruckTransportDb;User ID=sa;Password=${SQLSERVER_PASSWORD};TrustServerCertificate=True;MultipleActiveResultSets=True
-      Jwt__Key: ${JWT_KEY:?set JWT_KEY in .env}
       Jwt__Issuer: TruckTransportApi
       Jwt__Audience: TruckTransportApp
-      Cors__Origins__0: ${PUBLIC_URL:-http://yashpc}
     networks:
       - kargoknot-network
       - sqlserver-network
@@ -59,4 +53,4 @@ networks:
     driver: bridge
   sqlserver-network:
     external: true
-    name: ${SQLSERVER_NETWORK:?set SQLSERVER_NETWORK in .env}
+    name: ${SQLSERVER_NETWORK:-contactmanager}

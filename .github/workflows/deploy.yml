@@ -35,6 +35,13 @@ jobs:
             echo "📥 Pulling latest code..."
             git pull origin main
 
+            if [ ! -f .env ]; then
+              echo "❌ Missing .env file. Run once on the server:"
+              echo "   cp .env.example .env"
+              echo "   nano .env   # set YOUR_SQL_CONTAINER in ConnectionStrings__DefaultConnection"
+              exit 1
+            fi
+
             echo "🛑 Stopping containers..."
             /usr/bin/docker-compose down --remove-orphans || true
 
