@@ -1,0 +1,47 @@
+name: Deploy Kargo Knot
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          authkey: ${{ secrets.TS_AUTHKEY }}
+          args: --ssh
+
+      - name: Wait for network
+        run: sleep 10
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 100.97.42.1
+          username: yash
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+
+            echo "🚀 Navigating to project..."
+            cd ~/kargo/Kargo-Knot
+
+            echo "📥 Pulling latest code..."
+            git pull origin main
+
+            echo "🛑 Stopping containers..."
+            /usr/bin/docker-compose down --remove-orphans || true
+
+            echo "🏗️ Building containers..."
+            /usr/bin/docker-compose up -d --build --remove-orphans
+
+            echo "⏳ Waiting for services..."
+            sleep 45
+
+            echo "✅ Deployment completed successfully!"

@@ -1,29 +1,31 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\My PC\\Projects\\truck-transport-hub\\truck-transport-api\\TruckTransportApi.csproj": {}
+    "/Users/yash/Kargo Knot/Kargo-Knot/truck-transport-api/TruckTransportApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\My PC\\Projects\\truck-transport-hub\\truck-transport-api\\TruckTransportApi.csproj": {
+    "/Users/yash/Kargo Knot/Kargo-Knot/truck-transport-api/TruckTransportApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\My PC\\Projects\\truck-transport-hub\\truck-transport-api\\TruckTransportApi.csproj",
+        "projectUniqueName": "/Users/yash/Kargo Knot/Kargo-Knot/truck-transport-api/TruckTransportApi.csproj",
         "projectName": "TruckTransportApi",
-        "projectPath": "C:\\Users\\My PC\\Projects\\truck-transport-hub\\truck-transport-api\\TruckTransportApi.csproj",
-        "packagesPath": "C:\\Users\\My PC\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\My PC\\Projects\\truck-transport-hub\\truck-transport-api\\obj\\",
+        "projectPath": "/Users/yash/Kargo Knot/Kargo-Knot/truck-transport-api/TruckTransportApi.csproj",
+        "packagesPath": "/Users/yash/.nuget/packages/",
+        "outputPath": "/Users/yash/Kargo Knot/Kargo-Knot/truck-transport-api/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\My PC\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/Users/yash/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "https://api.nuget.org/v3/index.json": {}
+          "https://api.nuget.org/v3/index.json": {},
+          "https://nuget.pkg.github.com/superquickquestion/index.json": {}
         },
         "frameworks": {
           "net8.0": {
+            "framework": "net8.0",
             "targetAlias": "net8.0",
             "projectReferences": {}
           }
@@ -37,10 +39,12 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "10.0.300"
       },
       "frameworks": {
         "net8.0": {
+          "framework": "net8.0",
           "targetAlias": "net8.0",
           "dependencies": {
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
@@ -87,7 +91,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.422/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.301/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

@@ -1,11 +1,1 @@
-{
-  "Version": 1,
-  "Hash": "ydwvFVey4v5mTXh7QS//6XKpxYBEIWquCpQjg2dQhnY=",
-  "Source": "TruckTransportApi",
-  "BasePath": "_content/TruckTransportApi",
-  "Mode": "Default",
-  "ManifestType": "Build",
-  "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
-  "Assets": []
-}
+{"Version":1,"Hash":"9T0MIr5nd190rZ476JPzGbF64h3LUZ4mt+b/c0aWKw8=","Source":"TruckTransportApi","BasePath":"/","Mode":"Root","ManifestType":"Build","ReferencedProjectsConfiguration":[],"DiscoveryPatterns":[],"Assets":[],"Endpoints":[]}
