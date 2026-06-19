@@ -34,8 +34,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<TripQueryService>();
 builder.Services.AddSingleton<JwtTokenService>();
+builder.Services.AddHostedService<DatabaseMigrationHostedService>();
 
-var jwtKey = builder.Configuration["Jwt:Key"]!;
+var jwtKey = builder.Configuration["Jwt:Key"];
+if (string.IsNullOrWhiteSpace(jwtKey))
+    throw new InvalidOperationException("Jwt:Key is not configured. Set Jwt__Key in .env");
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -70,8 +74,6 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-await InitializeDatabaseAsync(app.Services);
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -89,28 +91,3 @@ app.UseAuthorization();
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 app.MapControllers();
 app.Run();
-
-static async Task InitializeDatabaseAsync(IServiceProvider services)
-{
-    using var scope = services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-
-    const int maxAttempts = 15;
-    for (var attempt = 1; attempt <= maxAttempts; attempt++)
-    {
-        try
-        {
-            logger.LogInformation("Applying database migrations (attempt {Attempt}/{Max})...", attempt, maxAttempts);
-            await db.Database.MigrateAsync();
-            await DbSeeder.SeedAsync(db);
-            logger.LogInformation("Database ready.");
-            return;
-        }
-        catch (Exception ex) when (attempt < maxAttempts)
-        {
-            logger.LogWarning(ex, "Database not ready, retrying in 5s...");
-            await Task.Delay(TimeSpan.FromSeconds(5));
-        }
-    }
-}

@@ -32,14 +32,19 @@ export class LoginComponent {
     this.isSubmitting.set(true);
     this.errorMessage.set('');
 
-    const success = this.auth.login(this.form.getRawValue());
-    this.isSubmitting.set(false);
-
-    if (!success) {
-      this.errorMessage.set('Invalid credentials. Please verify your email and password.');
-      return;
-    }
-
-    this.router.navigate(['/dashboard']);
+    this.auth.login(this.form.getRawValue()).subscribe({
+      next: (success) => {
+        this.isSubmitting.set(false);
+        if (!success) {
+          this.errorMessage.set('Invalid credentials. Please verify your email and password.');
+          return;
+        }
+        this.router.navigate(['/dashboard']);
+      },
+      error: () => {
+        this.isSubmitting.set(false);
+        this.errorMessage.set('Unable to reach the server. Please try again.');
+      },
+    });
   }
 }

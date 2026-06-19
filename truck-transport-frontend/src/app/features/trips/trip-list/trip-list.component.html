@@ -60,6 +60,10 @@
   </form>
 </section>
 
+@if (loadError()) {
+  <p class="error-banner">{{ loadError() }}</p>
+}
+
 <section class="panel">
   <header class="panel-header compact">
     <div>

@@ -1,148 +1,144 @@
-import { Injectable, signal } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { map, Observable, catchError, of } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { TransportTrip, TripFilter } from '../models/transport-trip.model';
 
-const STORAGE_KEY = 'transport_trips';
+interface ApiTrip {
+  id: string;
+  date: string;
+  shift: string;
+  truckNumber: string;
+  quarryName: string;
+  tonnes: number;
+  driverName: string;
+  driverPhone: string;
+  driverLicense: string;
+  startTime: string;
+  endTime: string;
+  createdBy: string;
+  createdAt: string;
+}
+
+interface ApiSummary {
+  totalTrips: number;
+  totalTonnes: number;
+  dayTrips: number;
+  nightTrips: number;
+}
+
+export interface TripSummary {
+  totalTrips: number;
+  totalTonnes: number;
+  dayTrips: number;
+  nightTrips: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class TransportService {
-  private readonly trips = signal<TransportTrip[]>(this.loadTrips());
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = `${environment.apiUrl}/trips`;
 
-  readonly tripsSignal = this.trips.asReadonly();
-
-  getAll(): TransportTrip[] {
-    return this.trips();
+  getAll(filter?: TripFilter): Observable<TransportTrip[]> {
+    return this.http
+      .get<ApiTrip[]>(this.apiUrl, { params: this.buildParams(filter) })
+      .pipe(map((trips) => trips.map((trip) => this.mapTrip(trip))));
   }
 
-  getById(id: string): TransportTrip | undefined {
-    return this.trips().find((trip) => trip.id === id);
-  }
-
-  add(trip: Omit<TransportTrip, 'id' | 'createdAt'>): TransportTrip {
-    const newTrip: TransportTrip = {
-      ...trip,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-    };
-    this.trips.update((items) => [newTrip, ...items]);
-    this.persist();
-    return newTrip;
-  }
-
-  update(id: string, changes: Partial<TransportTrip>): TransportTrip | undefined {
-    let updated: TransportTrip | undefined;
-    this.trips.update((items) =>
-      items.map((trip) => {
-        if (trip.id !== id) {
-          return trip;
-        }
-        updated = { ...trip, ...changes, id: trip.id };
-        return updated;
-      })
+  getById(id: string): Observable<TransportTrip | undefined> {
+    return this.http.get<ApiTrip>(`${this.apiUrl}/${id}`).pipe(
+      map((trip) => this.mapTrip(trip)),
+      catchError(() => of(undefined))
     );
-    this.persist();
-    return updated;
   }
 
-  delete(id: string): void {
-    this.trips.update((items) => items.filter((trip) => trip.id !== id));
-    this.persist();
+  getSummary(): Observable<TripSummary> {
+    return this.http.get<ApiSummary>(`${this.apiUrl}/summary`).pipe(
+      map((summary) => ({
+        totalTrips: summary.totalTrips,
+        totalTonnes: summary.totalTonnes,
+        dayTrips: summary.dayTrips,
+        nightTrips: summary.nightTrips,
+      }))
+    );
   }
 
-  filter(filters: TripFilter): TransportTrip[] {
-    return this.trips().filter((trip) => {
-      if (filters.dateFrom && trip.date < filters.dateFrom) return false;
-      if (filters.dateTo && trip.date > filters.dateTo) return false;
-      if (filters.shift && trip.shift !== filters.shift) return false;
-      if (filters.truckNumber && !trip.truckNumber.toLowerCase().includes(filters.truckNumber.toLowerCase())) {
-        return false;
-      }
-      if (filters.quarryName && !trip.quarryName.toLowerCase().includes(filters.quarryName.toLowerCase())) {
-        return false;
-      }
-      if (filters.driverName && !trip.driverName.toLowerCase().includes(filters.driverName.toLowerCase())) {
-        return false;
-      }
-      if (filters.minTonnes !== null && trip.tonnes < filters.minTonnes) return false;
-      if (filters.maxTonnes !== null && trip.tonnes > filters.maxTonnes) return false;
-      return true;
-    });
+  add(trip: Omit<TransportTrip, 'id' | 'createdAt'>): Observable<TransportTrip> {
+    return this.http
+      .post<ApiTrip[]>(this.apiUrl, {
+        date: trip.date,
+        shift: trip.shift,
+        truckNumber: trip.truckNumber,
+        quarryName: trip.quarryName,
+        tonnes: trip.tonnes,
+        dieselLiters: 0,
+        driverName: trip.driverName,
+        driverPhone: trip.driverPhone,
+        driverLicense: trip.driverLicense,
+        startTime: trip.startTime,
+        endTime: trip.endTime,
+        numberOfTrips: 1,
+      })
+      .pipe(map((created) => this.mapTrip(created[0])));
   }
 
-  getSummary() {
-    const items = this.trips();
+  update(id: string, changes: Partial<TransportTrip>): Observable<TransportTrip> {
+    return this.http
+      .put<ApiTrip>(`${this.apiUrl}/${id}`, {
+        date: changes.date,
+        shift: changes.shift,
+        truckNumber: changes.truckNumber,
+        quarryName: changes.quarryName,
+        tonnes: changes.tonnes,
+        dieselLiters: 0,
+        driverName: changes.driverName,
+        driverPhone: changes.driverPhone,
+        driverLicense: changes.driverLicense,
+        startTime: changes.startTime,
+        endTime: changes.endTime,
+      })
+      .pipe(map((trip) => this.mapTrip(trip)));
+  }
+
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  filter(filters: TripFilter): Observable<TransportTrip[]> {
+    return this.getAll(filters);
+  }
+
+  private buildParams(filter?: TripFilter): HttpParams {
+    let params = new HttpParams();
+    if (!filter) {
+      return params;
+    }
+    if (filter.dateFrom) params = params.set('dateFrom', filter.dateFrom);
+    if (filter.dateTo) params = params.set('dateTo', filter.dateTo);
+    if (filter.shift) params = params.set('shift', filter.shift);
+    if (filter.truckNumber) params = params.set('truckNumber', filter.truckNumber);
+    if (filter.quarryName) params = params.set('quarryName', filter.quarryName);
+    if (filter.driverName) params = params.set('driverName', filter.driverName);
+    if (filter.minTonnes !== null) params = params.set('minTonnes', filter.minTonnes);
+    if (filter.maxTonnes !== null) params = params.set('maxTonnes', filter.maxTonnes);
+    return params;
+  }
+
+  private mapTrip(trip: ApiTrip): TransportTrip {
     return {
-      totalTrips: items.length,
-      totalTonnes: items.reduce((sum, trip) => sum + trip.tonnes, 0),
-      dayTrips: items.filter((trip) => trip.shift === 'Day').length,
-      nightTrips: items.filter((trip) => trip.shift === 'Night').length,
+      id: trip.id,
+      date: trip.date,
+      shift: trip.shift as TransportTrip['shift'],
+      truckNumber: trip.truckNumber,
+      quarryName: trip.quarryName,
+      tonnes: trip.tonnes,
+      driverName: trip.driverName,
+      driverPhone: trip.driverPhone,
+      driverLicense: trip.driverLicense,
+      startTime: trip.startTime,
+      endTime: trip.endTime,
+      createdAt: trip.createdAt,
+      createdBy: trip.createdBy,
     };
-  }
-
-  private loadTrips(): TransportTrip[] {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      return this.seedData();
-    }
-    try {
-      return JSON.parse(raw) as TransportTrip[];
-    } catch {
-      return this.seedData();
-    }
-  }
-
-  private persist(): void {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(this.trips()));
-  }
-
-  private seedData(): TransportTrip[] {
-    const seed: TransportTrip[] = [
-      {
-        id: crypto.randomUUID(),
-        date: '2026-06-12',
-        shift: 'Day',
-        truckNumber: 'MH-12-AB-4521',
-        quarryName: 'Shivam Stone Crusher #3',
-        tonnes: 18.5,
-        driverName: 'Rajesh Kumar',
-        driverPhone: '+91 98765 43210',
-        driverLicense: 'MH-2024-88912',
-        startTime: '06:30',
-        endTime: '14:15',
-        createdAt: new Date().toISOString(),
-        createdBy: 'admin@transport.com',
-      },
-      {
-        id: crypto.randomUUID(),
-        date: '2026-06-12',
-        shift: 'Night',
-        truckNumber: 'MH-12-CD-7788',
-        quarryName: 'Blue Ridge Quarry',
-        tonnes: 22,
-        driverName: 'Suresh Patil',
-        driverPhone: '+91 91234 56789',
-        driverLicense: 'MH-2023-44102',
-        startTime: '20:00',
-        endTime: '04:30',
-        createdAt: new Date().toISOString(),
-        createdBy: 'user@transport.com',
-      },
-      {
-        id: crypto.randomUUID(),
-        date: '2026-06-13',
-        shift: 'Day',
-        truckNumber: 'MH-14-EF-3301',
-        quarryName: 'Granite Hills Crusher #1',
-        tonnes: 15.75,
-        driverName: 'Amit Deshmukh',
-        driverPhone: '+91 99887 76655',
-        driverLicense: 'MH-2025-10234',
-        startTime: '07:00',
-        endTime: '15:45',
-        createdAt: new Date().toISOString(),
-        createdBy: 'user@transport.com',
-      },
-    ];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
-    return seed;
   }
 }

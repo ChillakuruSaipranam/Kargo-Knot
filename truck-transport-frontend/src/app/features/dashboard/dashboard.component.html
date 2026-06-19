@@ -10,21 +10,25 @@
 <div class="stats-grid">
   <article class="stat-card">
     <span class="stat-label">Total Trips</span>
-    <strong class="stat-value">{{ summary.totalTrips }}</strong>
+    <strong class="stat-value">{{ summary().totalTrips }}</strong>
   </article>
   <article class="stat-card highlight">
     <span class="stat-label">Total Tonnes Moved</span>
-    <strong class="stat-value">{{ summary.totalTonnes | number: '1.2-2' }}</strong>
+    <strong class="stat-value">{{ summary().totalTonnes | number: '1.2-2' }}</strong>
   </article>
   <article class="stat-card">
     <span class="stat-label">Day Shift Trips</span>
-    <strong class="stat-value">{{ summary.dayTrips }}</strong>
+    <strong class="stat-value">{{ summary().dayTrips }}</strong>
   </article>
   <article class="stat-card">
     <span class="stat-label">Night Shift Trips</span>
-    <strong class="stat-value">{{ summary.nightTrips }}</strong>
+    <strong class="stat-value">{{ summary().nightTrips }}</strong>
   </article>
 </div>
+
+@if (loadError()) {
+  <p class="error-banner">{{ loadError() }}</p>
+}
 
 <section class="panel">
   <header class="panel-header">
@@ -49,7 +53,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (trip of recentTrips; track trip.id) {
+        @for (trip of recentTrips(); track trip.id) {
           <tr>
             <td>{{ trip.date }}</td>
             <td><span class="badge" [class.night]="trip.shift === 'Night'">{{ trip.shift }}</span></td>

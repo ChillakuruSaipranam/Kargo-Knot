@@ -21,6 +21,7 @@ export class TripFormComponent implements OnInit {
   isEditMode = false;
   tripId: string | null = null;
   submitMessage = '';
+  loadError = '';
 
   readonly form = this.fb.nonNullable.group({
     date: ['', Validators.required],
@@ -40,12 +41,18 @@ export class TripFormComponent implements OnInit {
     this.isEditMode = !!this.tripId;
 
     if (this.tripId) {
-      const trip = this.transportService.getById(this.tripId);
-      if (!trip) {
-        this.router.navigate(['/trips']);
-        return;
-      }
-      this.form.patchValue(trip);
+      this.transportService.getById(this.tripId).subscribe({
+        next: (trip) => {
+          if (!trip) {
+            this.router.navigate(['/trips']);
+            return;
+          }
+          this.form.patchValue(trip);
+        },
+        error: () => {
+          this.loadError = 'Unable to load trip record.';
+        },
+      });
     } else {
       this.form.patchValue({ date: new Date().toISOString().slice(0, 10) });
     }
@@ -67,26 +74,37 @@ export class TripFormComponent implements OnInit {
       createdBy: user.email,
     };
 
-    if (this.isEditMode && this.tripId) {
-      this.transportService.update(this.tripId, payload);
-      this.submitMessage = 'Trip record updated successfully.';
-    } else {
-      this.transportService.add(payload);
-      this.submitMessage = 'Trip record registered successfully.';
-      this.form.reset({
-        date: new Date().toISOString().slice(0, 10),
-        shift: 'Day',
-        truckNumber: '',
-        quarryName: '',
-        tonnes: 0,
-        driverName: '',
-        driverPhone: '',
-        driverLicense: '',
-        startTime: '',
-        endTime: '',
-      });
-    }
+    const request$ =
+      this.isEditMode && this.tripId
+        ? this.transportService.update(this.tripId, payload)
+        : this.transportService.add(payload);
 
-    setTimeout(() => this.router.navigate(['/trips']), 900);
+    request$.subscribe({
+      next: () => {
+        this.submitMessage = this.isEditMode
+          ? 'Trip record updated successfully.'
+          : 'Trip record registered successfully.';
+
+        if (!this.isEditMode) {
+          this.form.reset({
+            date: new Date().toISOString().slice(0, 10),
+            shift: 'Day',
+            truckNumber: '',
+            quarryName: '',
+            tonnes: 0,
+            driverName: '',
+            driverPhone: '',
+            driverLicense: '',
+            startTime: '',
+            endTime: '',
+          });
+        }
+
+        setTimeout(() => this.router.navigate(['/trips']), 900);
+      },
+      error: () => {
+        this.loadError = 'Unable to save trip record.';
+      },
+    });
   }
 }
