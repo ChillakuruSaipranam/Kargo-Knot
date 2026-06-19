@@ -6,7 +6,9 @@ export interface TransportTrip {
   shift: ShiftType;
   truckNumber: string;
   quarryName: string;
+  numberOfTrips: number;
   tonnes: number;
+  dieselLiters: number;
   driverName: string;
   driverPhone: string;
   driverLicense: string;

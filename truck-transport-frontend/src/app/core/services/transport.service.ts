@@ -10,7 +10,9 @@ interface ApiTrip {
   shift: string;
   truckNumber: string;
   quarryName: string;
+  numberOfTrips: number;
   tonnes: number;
+  dieselLiters: number;
   driverName: string;
   driverPhone: string;
   driverLicense: string;
@@ -71,13 +73,13 @@ export class TransportService {
         truckNumber: trip.truckNumber,
         quarryName: trip.quarryName,
         tonnes: trip.tonnes,
-        dieselLiters: 0,
+        dieselLiters: trip.dieselLiters,
         driverName: trip.driverName,
         driverPhone: trip.driverPhone,
         driverLicense: trip.driverLicense,
         startTime: trip.startTime,
         endTime: trip.endTime,
-        numberOfTrips: 1,
+        numberOfTrips: trip.numberOfTrips,
       })
       .pipe(map((created) => this.mapTrip(created[0])));
   }
@@ -90,7 +92,7 @@ export class TransportService {
         truckNumber: changes.truckNumber,
         quarryName: changes.quarryName,
         tonnes: changes.tonnes,
-        dieselLiters: 0,
+        dieselLiters: changes.dieselLiters,
         driverName: changes.driverName,
         driverPhone: changes.driverPhone,
         driverLicense: changes.driverLicense,
@@ -131,7 +133,9 @@ export class TransportService {
       shift: trip.shift as TransportTrip['shift'],
       truckNumber: trip.truckNumber,
       quarryName: trip.quarryName,
+      numberOfTrips: trip.numberOfTrips,
       tonnes: trip.tonnes,
+      dieselLiters: trip.dieselLiters,
       driverName: trip.driverName,
       driverPhone: trip.driverPhone,
       driverLicense: trip.driverLicense,

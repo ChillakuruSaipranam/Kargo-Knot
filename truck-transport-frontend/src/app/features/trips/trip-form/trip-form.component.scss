@@ -27,9 +27,64 @@
   gap: 0.75rem;
 }
 
+.add-lookup-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.add-lookup-card {
+  border: 1px dashed var(--border);
+  border-radius: 0.5rem;
+  padding: 0.85rem;
+  background: #fafbfc;
+}
+
+.add-lookup-card.driver-add {
+  margin-top: 1rem;
+}
+
+.add-lookup-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.add-lookup-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.add-lookup-row input {
+  flex: 1;
+}
+
+.add-driver-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.alert-error {
+  background: #fef3f2;
+  color: var(--danger);
+  border: 1px solid #fecdca;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+
 @media (max-width: 900px) {
   .form-grid,
   .form-grid.two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .add-lookup-grid,
+  .add-driver-grid {
     grid-template-columns: 1fr;
   }
 }

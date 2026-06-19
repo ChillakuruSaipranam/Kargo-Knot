@@ -80,7 +80,9 @@
           <th>Shift</th>
           <th>Truck No.</th>
           <th>Quarry / Crusher</th>
+          <th>Trips</th>
           <th>Tonnes</th>
+          <th>Diesel (L)</th>
           <th>Driver</th>
           <th>Phone</th>
           <th>Start</th>
@@ -95,7 +97,9 @@
             <td><span class="badge" [class.night]="trip.shift === 'Night'">{{ trip.shift }}</span></td>
             <td>{{ trip.truckNumber }}</td>
             <td>{{ trip.quarryName }}</td>
+            <td>{{ trip.numberOfTrips }}</td>
             <td>{{ trip.tonnes | number: '1.2-2' }}</td>
+            <td>{{ trip.dieselLiters | number: '1.2-2' }}</td>
             <td>{{ trip.driverName }}</td>
             <td>{{ trip.driverPhone }}</td>
             <td>{{ trip.startTime }}</td>
@@ -109,7 +113,7 @@
           </tr>
         } @empty {
           <tr>
-            <td colspan="10" class="empty-row">No records match your filter criteria.</td>
+            <td colspan="12" class="empty-row">No records match your filter criteria.</td>
           </tr>
         }
       </tbody>
