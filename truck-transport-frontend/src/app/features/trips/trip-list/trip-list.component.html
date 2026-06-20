@@ -34,15 +34,30 @@
     </label>
     <label>
       <span>Truck Number</span>
-      <input type="text" formControlName="truckNumber" placeholder="e.g. MH-12-AB-4521" />
+      <select formControlName="truckNumber">
+        <option value="">All trucks</option>
+        @for (truck of trucks(); track truck.id) {
+          <option [value]="truck.label">{{ truck.label }}</option>
+        }
+      </select>
     </label>
     <label>
       <span>Quarry / Crusher</span>
-      <input type="text" formControlName="quarryName" placeholder="Search quarry name" />
+      <select formControlName="quarryName">
+        <option value="">All quarries</option>
+        @for (quarry of quarries(); track quarry.id) {
+          <option [value]="quarry.label">{{ quarry.label }}</option>
+        }
+      </select>
     </label>
     <label>
       <span>Driver Name</span>
-      <input type="text" formControlName="driverName" placeholder="Search driver" />
+      <select formControlName="driverName">
+        <option value="">All drivers</option>
+        @for (driver of drivers(); track driver.id) {
+          <option [value]="driver.label">{{ driver.label }}</option>
+        }
+      </select>
     </label>
     <label>
       <span>Min Tonnes</span>
@@ -72,7 +87,7 @@
     </div>
   </header>
 
-  <div class="table-wrap">
+  <div class="table-wrap desktop-only">
     <table>
       <thead>
         <tr>
@@ -118,5 +133,36 @@
         }
       </tbody>
     </table>
+  </div>
+
+  <div class="trip-cards mobile-only">
+    @for (trip of filteredTrips(); track trip.id) {
+      <article class="trip-card">
+        <header class="trip-card-header">
+          <div>
+            <strong>{{ trip.date }}</strong>
+            <span class="badge" [class.night]="trip.shift === 'Night'">{{ trip.shift }}</span>
+          </div>
+          <span class="trip-card-tonnes">{{ trip.tonnes | number: '1.2-2' }} t</span>
+        </header>
+        <dl class="trip-card-details">
+          <div><dt>Truck</dt><dd>{{ trip.truckNumber }}</dd></div>
+          <div><dt>Quarry</dt><dd>{{ trip.quarryName }}</dd></div>
+          <div><dt>Trips</dt><dd>{{ trip.numberOfTrips }}</dd></div>
+          <div><dt>Diesel</dt><dd>{{ trip.dieselLiters | number: '1.2-2' }} L</dd></div>
+          <div><dt>Driver</dt><dd>{{ trip.driverName }}</dd></div>
+          <div><dt>Phone</dt><dd>{{ trip.driverPhone }}</dd></div>
+          <div><dt>Time</dt><dd>{{ trip.startTime }} – {{ trip.endTime }}</dd></div>
+        </dl>
+        <div class="trip-card-actions">
+          <a class="btn btn-secondary" [routerLink]="['/trips', trip.id, 'edit']">Edit</a>
+          @if (auth.isAdmin()) {
+            <button class="btn btn-secondary danger-outline" type="button" (click)="deleteTrip(trip.id)">Delete</button>
+          }
+        </div>
+      </article>
+    } @empty {
+      <p class="empty-row">No records match your filter criteria.</p>
+    }
   </div>
 </section>

@@ -13,6 +13,8 @@ export interface LoginRequest {
   password: string;
 }
 
-export interface LoginResponse {
-  user: AuthUser;
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  fullName: string;
 }

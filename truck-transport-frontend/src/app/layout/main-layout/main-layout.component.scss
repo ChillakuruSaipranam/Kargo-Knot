@@ -1,64 +1,112 @@
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 .top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1.5rem;
-  padding: 1rem 1.75rem;
+  gap: 1rem;
+  padding: 0.85rem 1.25rem;
   background: linear-gradient(135deg, var(--navy-900), var(--navy-700));
   color: #fff;
   border-bottom: 4px solid var(--gold-500);
   box-shadow: var(--shadow-md);
 }
 
+.top-bar-main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.28rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+}
+
+.nav-toggle span {
+  display: block;
+  width: 1.15rem;
+  height: 2px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 1px;
+}
+
 .brand {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
+  min-width: 0;
 }
 
 .brand-mark {
-  width: 3rem;
-  height: 3rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
   color: var(--gold-400);
 }
 
 .brand-eyebrow {
   margin: 0;
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.72);
 }
 
 .brand h1 {
-  margin: 0.15rem 0 0;
-  font-size: 1.2rem;
+  margin: 0.1rem 0 0;
+  font-size: 1rem;
   font-weight: 700;
+  line-height: 1.25;
+}
+
+.brand-title-short {
+  display: none;
 }
 
 .user-panel {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
+  flex-shrink: 0;
 }
 
 .user-meta {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.2rem;
+  gap: 0.15rem;
 }
 
 .user-name {
   font-weight: 600;
-  font-size: 0.92rem;
+  font-size: 0.88rem;
+  max-width: 10rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .user-role {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 0.15rem 0.5rem;
+  padding: 0.12rem 0.45rem;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.12);
 }
@@ -68,16 +116,22 @@
   color: var(--gold-300);
 }
 
+.btn-signout {
+  padding: 0.5rem 0.85rem;
+  font-size: 0.88rem;
+}
+
 .workspace {
   display: grid;
   grid-template-columns: 240px 1fr;
-  min-height: calc(100vh - 148px);
+  flex: 1;
+  position: relative;
 }
 
 .sidebar {
   background: var(--navy-800);
   color: #fff;
-  padding: 1.5rem 1rem;
+  padding: 1.25rem 0.85rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -87,13 +141,13 @@
 .sidebar nav {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.3rem;
 }
 
 .sidebar a {
   color: rgba(255, 255, 255, 0.82);
   text-decoration: none;
-  padding: 0.75rem 0.9rem;
+  padding: 0.75rem 0.85rem;
   border-radius: 0.5rem;
   font-weight: 500;
   border-left: 3px solid transparent;
@@ -108,14 +162,14 @@
 }
 
 .sidebar-footer {
-  margin-top: 2rem;
-  padding-top: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 0.85rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .sidebar-footer p {
   margin: 0;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--gold-300);
@@ -123,41 +177,108 @@
 
 .sidebar-footer small {
   color: rgba(255, 255, 255, 0.55);
+  font-size: 0.75rem;
+}
+
+.nav-backdrop {
+  display: none;
 }
 
 .content {
-  padding: 1.75rem;
+  padding: 1.25rem;
   background: var(--surface-100);
+  min-width: 0;
 }
 
 .site-footer {
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 0.85rem 1.75rem;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
   background: var(--navy-900);
   color: rgba(255, 255, 255, 0.7);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 @media (max-width: 900px) {
+  .nav-toggle {
+    display: flex;
+  }
+
+  .brand-title-full {
+    display: none;
+  }
+
+  .brand-title-short {
+    display: inline;
+  }
+
   .workspace {
     grid-template-columns: 1fr;
   }
 
   .sidebar {
-    border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 200;
+    width: min(18rem, 85vw);
+    height: 100vh;
+    transform: translateX(-105%);
+    transition: transform 0.25s ease;
+    box-shadow: var(--shadow-lg);
   }
 
-  .sidebar nav {
-    flex-direction: row;
-    flex-wrap: wrap;
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    border: none;
+    background: rgba(15, 39, 68, 0.45);
+    cursor: pointer;
   }
 
   .top-bar {
-    flex-direction: column;
+    flex-wrap: wrap;
+    padding: 0.75rem 1rem;
+  }
+
+  .user-panel {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .user-meta {
     align-items: flex-start;
+  }
+
+  .user-name {
+    max-width: none;
+  }
+
+  .content {
+    padding: 1rem 0.85rem 1.5rem;
+  }
+
+  .site-footer {
+    flex-direction: column;
+    text-align: center;
+    padding: 0.85rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-meta {
+    display: none;
+  }
+
+  .btn-signout {
+    margin-left: auto;
   }
 }

@@ -3,7 +3,9 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { TransportService } from '../../../core/services/transport.service';
+import { LookupService } from '../../../core/services/lookup.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { LookupItem } from '../../../core/models/lookup.model';
 import { emptyTripFilter, TransportTrip } from '../../../core/models/transport-trip.model';
 
 @Component({
@@ -16,7 +18,12 @@ import { emptyTripFilter, TransportTrip } from '../../../core/models/transport-t
 export class TripListComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly transportService = inject(TransportService);
+  private readonly lookupService = inject(LookupService);
   readonly auth = inject(AuthService);
+
+  readonly trucks = signal<LookupItem[]>([]);
+  readonly quarries = signal<LookupItem[]>([]);
+  readonly drivers = signal<LookupItem[]>([]);
 
   readonly filterForm = this.fb.nonNullable.group({
     dateFrom: [''],
@@ -34,6 +41,7 @@ export class TripListComponent implements OnInit {
   readonly isLoading = signal(true);
 
   ngOnInit(): void {
+    this.loadLookups();
     this.loadTrips();
   }
 
@@ -58,6 +66,18 @@ export class TripListComponent implements OnInit {
     }
   }
 
+  private loadLookups(): void {
+    this.lookupService.getTrucks().subscribe({
+      next: (items) => this.trucks.set(this.sortByLabel(items)),
+    });
+    this.lookupService.getQuarries().subscribe({
+      next: (items) => this.quarries.set(this.sortByLabel(items)),
+    });
+    this.lookupService.getDrivers().subscribe({
+      next: (items) => this.drivers.set(this.sortByLabel(items)),
+    });
+  }
+
   private loadTrips(filter = emptyTripFilter()): void {
     this.isLoading.set(true);
     this.loadError.set('');
@@ -72,5 +92,9 @@ export class TripListComponent implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  private sortByLabel(items: LookupItem[]): LookupItem[] {
+    return [...items].sort((a, b) => a.label.localeCompare(b.label));
   }
 }

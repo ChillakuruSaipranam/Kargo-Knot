@@ -39,7 +39,7 @@
     <a routerLink="/trips" class="btn btn-secondary">View All Records</a>
   </header>
 
-  <div class="table-wrap">
+  <div class="table-wrap desktop-only">
     <table>
       <thead>
         <tr>
@@ -70,5 +70,21 @@
         }
       </tbody>
     </table>
+  </div>
+
+  <div class="recent-cards mobile-only">
+    @for (trip of recentTrips(); track trip.id) {
+      <article class="recent-card">
+        <div class="recent-card-top">
+          <strong>{{ trip.date }}</strong>
+          <span class="badge" [class.night]="trip.shift === 'Night'">{{ trip.shift }}</span>
+        </div>
+        <p>{{ trip.truckNumber }} · {{ trip.quarryName }}</p>
+        <p>{{ trip.tonnes | number: '1.2-2' }} t · {{ trip.driverName }}</p>
+        <p class="recent-card-time">{{ trip.startTime }} – {{ trip.endTime }}</p>
+      </article>
+    } @empty {
+      <p class="empty-row">No trip records available yet.</p>
+    }
   </div>
 </section>

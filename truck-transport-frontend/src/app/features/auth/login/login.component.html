@@ -16,41 +16,91 @@
   </section>
 
   <section class="login-card">
-    <header>
-      <h2>Secure Sign In</h2>
-      <p>Enter your credentials to access the operations portal.</p>
-    </header>
-
-    <form [formGroup]="form" (ngSubmit)="submit()">
-      <label>
-        <span>Email Address</span>
-        <input type="email" formControlName="email" placeholder="name@transport.com" />
-        @if (form.controls.email.touched && form.controls.email.invalid) {
-          <small>Enter a valid email address.</small>
-        }
-      </label>
-
-      <label>
-        <span>Password</span>
-        <input type="password" formControlName="password" placeholder="Enter password" />
-        @if (form.controls.password.touched && form.controls.password.invalid) {
-          <small>Password must be at least 6 characters.</small>
-        }
-      </label>
-
-      @if (errorMessage()) {
-        <div class="alert alert-error" role="alert">{{ errorMessage() }}</div>
-      }
-
-      <button class="btn btn-primary" type="submit" [disabled]="isSubmitting()">
-        {{ isSubmitting() ? 'Signing in...' : 'Sign In to Portal' }}
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab" [class.active]="mode() === 'login'" (click)="setMode('login')">
+        Sign In
       </button>
-    </form>
-
-    <div class="demo-credentials">
-      <p><strong>Demo Accounts</strong></p>
-      <p>Admin: admin&#64;transport.com / admin123</p>
-      <p>User: user&#64;transport.com / user123</p>
+      <button type="button" class="auth-tab" [class.active]="mode() === 'register'" (click)="setMode('register')">
+        Register
+      </button>
     </div>
+
+    @if (mode() === 'login') {
+      <header>
+        <h2>Secure Sign In</h2>
+        <p>Enter your credentials to access the operations portal.</p>
+      </header>
+
+      <form [formGroup]="loginForm" (ngSubmit)="submitLogin()">
+        <label>
+          <span>Email Address</span>
+          <input type="email" formControlName="email" placeholder="name@transport.com" />
+          @if (loginForm.controls.email.touched && loginForm.controls.email.invalid) {
+            <small>Enter a valid email address.</small>
+          }
+        </label>
+
+        <label>
+          <span>Password</span>
+          <input type="password" formControlName="password" placeholder="Enter password" />
+          @if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
+            <small>Password must be at least 6 characters.</small>
+          }
+        </label>
+
+        @if (errorMessage()) {
+          <div class="alert alert-error" role="alert">{{ errorMessage() }}</div>
+        }
+
+        <button class="btn btn-primary" type="submit" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? 'Signing in...' : 'Sign In to Portal' }}
+        </button>
+      </form>
+
+      <div class="demo-credentials">
+        <p><strong>Demo Accounts</strong></p>
+        <p>Admin: admin&#64;transport.com / admin123</p>
+        <p>User: user&#64;transport.com / user123</p>
+      </div>
+    } @else {
+      <header>
+        <h2>Create Account</h2>
+        <p>Register as an operations user to access trip records and reporting.</p>
+      </header>
+
+      <form [formGroup]="registerForm" (ngSubmit)="submitRegister()">
+        <label>
+          <span>Full Name</span>
+          <input type="text" formControlName="fullName" placeholder="Your full name" />
+          @if (registerForm.controls.fullName.touched && registerForm.controls.fullName.invalid) {
+            <small>Full name is required (min 3 characters).</small>
+          }
+        </label>
+
+        <label>
+          <span>Email Address</span>
+          <input type="email" formControlName="email" placeholder="name@transport.com" />
+          @if (registerForm.controls.email.touched && registerForm.controls.email.invalid) {
+            <small>Enter a valid email address.</small>
+          }
+        </label>
+
+        <label>
+          <span>Password</span>
+          <input type="password" formControlName="password" placeholder="At least 6 characters" />
+          @if (registerForm.controls.password.touched && registerForm.controls.password.invalid) {
+            <small>Password must be at least 6 characters.</small>
+          }
+        </label>
+
+        @if (errorMessage()) {
+          <div class="alert alert-error" role="alert">{{ errorMessage() }}</div>
+        }
+
+        <button class="btn btn-primary" type="submit" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? 'Creating account...' : 'Create Account' }}
+        </button>
+      </form>
+    }
   </section>
 </div>

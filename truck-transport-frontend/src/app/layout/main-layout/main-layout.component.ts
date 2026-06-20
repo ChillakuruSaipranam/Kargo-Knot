@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -13,6 +13,15 @@ export class MainLayoutComponent {
   private readonly router = inject(Router);
   readonly auth = inject(AuthService);
   readonly currentYear = new Date().getFullYear();
+  readonly navOpen = signal(false);
+
+  toggleNav(): void {
+    this.navOpen.update((open) => !open);
+  }
+
+  closeNav(): void {
+    this.navOpen.set(false);
+  }
 
   logout(): void {
     this.auth.logout();

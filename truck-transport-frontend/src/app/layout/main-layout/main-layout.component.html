@@ -1,39 +1,53 @@
 <div class="app-shell">
   <header class="top-bar">
-    <div class="brand">
-      <div class="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="4" y="18" width="28" height="16" rx="2" stroke="currentColor" stroke-width="2"/>
-          <path d="M32 22H38L44 28V34H32V22Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-          <circle cx="14" cy="36" r="4" stroke="currentColor" stroke-width="2"/>
-          <circle cx="38" cy="36" r="4" stroke="currentColor" stroke-width="2"/>
-        </svg>
-      </div>
-      <div>
-        <p class="brand-eyebrow">Government of Transport Operations</p>
-        <h1>Truck Transport Management System</h1>
+    <div class="top-bar-main">
+      <button
+        type="button"
+        class="nav-toggle"
+        aria-label="Toggle navigation menu"
+        [attr.aria-expanded]="navOpen()"
+        (click)="toggleNav()"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="18" width="28" height="16" rx="2" stroke="currentColor" stroke-width="2"/>
+            <path d="M32 22H38L44 28V34H32V22Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            <circle cx="14" cy="36" r="4" stroke="currentColor" stroke-width="2"/>
+            <circle cx="38" cy="36" r="4" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </div>
+        <div>
+          <p class="brand-eyebrow">Transport Operations</p>
+          <h1><span class="brand-title-full">Truck Transport Management System</span><span class="brand-title-short">Kargo Knot</span></h1>
+        </div>
       </div>
     </div>
 
     @if (auth.user(); as user) {
-    <div class="user-panel">
-      <div class="user-meta">
-        <span class="user-name">{{ user.fullName }}</span>
-        <span class="user-role" [class.admin]="user.role === 'Admin'">{{ user.role }}</span>
+      <div class="user-panel">
+        <div class="user-meta">
+          <span class="user-name">{{ user.fullName }}</span>
+          <span class="user-role" [class.admin]="user.role === 'Admin'">{{ user.role }}</span>
+        </div>
+        <button type="button" class="btn btn-outline btn-signout" (click)="logout()">Sign Out</button>
       </div>
-      <button type="button" class="btn btn-outline" (click)="logout()">Sign Out</button>
-    </div>
     }
   </header>
 
   <div class="workspace">
-    <aside class="sidebar">
+    <aside class="sidebar" [class.open]="navOpen()">
       <nav aria-label="Main navigation">
-        <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-        <a routerLink="/trips" routerLinkActive="active">Trip Records</a>
-        <a routerLink="/trips/new" routerLinkActive="active">New Trip Entry</a>
+        <a routerLink="/dashboard" routerLinkActive="active" (click)="closeNav()">Dashboard</a>
+        <a routerLink="/trips" routerLinkActive="active" (click)="closeNav()">Trip Records</a>
+        <a routerLink="/trips/new" routerLinkActive="active" (click)="closeNav()">New Trip Entry</a>
         @if (auth.isAdmin()) {
-          <a routerLink="/admin" routerLinkActive="active">Administration</a>
+          <a routerLink="/admin" routerLinkActive="active" (click)="closeNav()">Administration</a>
         }
       </nav>
 
@@ -43,13 +57,17 @@
       </div>
     </aside>
 
+    @if (navOpen()) {
+      <button type="button" class="nav-backdrop" aria-label="Close menu" (click)="closeNav()"></button>
+    }
+
     <main class="content">
       <router-outlet />
     </main>
   </div>
 
   <footer class="site-footer">
-    <span>&copy; {{ currentYear }} Truck Transport Management System</span>
-    <span>Confidential — Internal Operations Portal</span>
+    <span>&copy; {{ currentYear }} Truck Transport</span>
+    <span>Confidential — Internal Portal</span>
   </footer>
 </div>

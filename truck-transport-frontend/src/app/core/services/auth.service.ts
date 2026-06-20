@@ -1,8 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthUser, LoginRequest } from '../models/user.model';
+import { AuthUser, LoginRequest, RegisterRequest } from '../models/user.model';
 
 const AUTH_KEY = 'transport_auth';
 
@@ -27,21 +27,23 @@ export class AuthService {
   readonly isAuthenticated = computed(() => this.currentUser() !== null);
   readonly isAdmin = computed(() => this.currentUser()?.role === 'Admin');
 
-  login(request: LoginRequest): Observable<boolean> {
+  login(request: LoginRequest): Observable<{ success: boolean; message?: string }> {
     return this.http.post<ApiLoginResponse>(`${environment.apiUrl}/auth/login`, request).pipe(
-      tap((response) => {
-        const user: StoredUser = {
-          id: response.user.id,
-          email: response.user.email,
-          fullName: response.user.fullName,
-          role: response.user.role as AuthUser['role'],
-          token: response.token,
-        };
-        this.currentUser.set(user);
-        localStorage.setItem(AUTH_KEY, JSON.stringify(user));
-      }),
-      map(() => true),
-      catchError(() => of(false))
+      tap((response) => this.persistUser(response)),
+      map(() => ({ success: true })),
+      catchError((err: HttpErrorResponse) =>
+        of({ success: false, message: err.error?.message ?? 'Invalid credentials.' })
+      )
+    );
+  }
+
+  register(request: RegisterRequest): Observable<{ success: boolean; message?: string }> {
+    return this.http.post<ApiLoginResponse>(`${environment.apiUrl}/auth/register`, request).pipe(
+      tap((response) => this.persistUser(response)),
+      map(() => ({ success: true })),
+      catchError((err: HttpErrorResponse) =>
+        of({ success: false, message: err.error?.message ?? 'Registration failed.' })
+      )
     );
   }
 
@@ -52,6 +54,18 @@ export class AuthService {
 
   getToken(): string | null {
     return this.currentUser()?.token ?? null;
+  }
+
+  private persistUser(response: ApiLoginResponse): void {
+    const user: StoredUser = {
+      id: response.user.id,
+      email: response.user.email,
+      fullName: response.user.fullName,
+      role: response.user.role as AuthUser['role'],
+      token: response.token,
+    };
+    this.currentUser.set(user);
+    localStorage.setItem(AUTH_KEY, JSON.stringify(user));
   }
 
   private loadUser(): StoredUser | null {

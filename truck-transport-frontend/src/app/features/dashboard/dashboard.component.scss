@@ -32,6 +32,36 @@
   color: var(--navy-800);
 }
 
+.recent-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.recent-card {
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  padding: 0.85rem;
+  background: #fafbfc;
+}
+
+.recent-card-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.recent-card p {
+  margin: 0.2rem 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.recent-card-time {
+  font-size: 0.82rem !important;
+}
+
 @media (max-width: 900px) {
   .stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -39,6 +69,21 @@
 }
 
 @media (max-width: 560px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+  }
+
+  .stat-card {
+    padding: 0.85rem;
+  }
+
+  .stat-value {
+    font-size: 1.45rem;
+  }
+}
+
+@media (max-width: 380px) {
   .stats-grid {
     grid-template-columns: 1fr;
   }

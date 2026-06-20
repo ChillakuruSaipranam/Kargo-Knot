@@ -22,51 +22,39 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.form-actions {
+.lookup-fields {
   display: flex;
-  gap: 0.75rem;
-}
-
-.add-lookup-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  flex-direction: column;
   gap: 1rem;
   margin-top: 1rem;
 }
 
-.add-lookup-card {
-  border: 1px dashed var(--border);
-  border-radius: 0.5rem;
-  padding: 0.85rem;
-  background: #fafbfc;
-}
-
-.add-lookup-card.driver-add {
-  margin-top: 1rem;
-}
-
-.add-lookup-label {
-  display: block;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  margin-bottom: 0.5rem;
-}
-
-.add-lookup-row {
+.field-with-add {
   display: flex;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.4rem;
 }
 
-.add-lookup-row input {
-  flex: 1;
+.field-with-add > span {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--navy-700);
 }
 
-.add-driver-grid {
+.inline-add {
   display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr auto;
+  grid-template-columns: minmax(10rem, 1fr) minmax(10rem, 1.2fr) auto;
   gap: 0.5rem;
   align-items: center;
+}
+
+.inline-add-driver {
+  grid-template-columns: minmax(8rem, 1fr) minmax(8rem, 1fr) minmax(7rem, 0.9fr) minmax(7rem, 0.9fr) auto;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
 }
 
 .alert-error {
@@ -83,8 +71,8 @@
     grid-template-columns: 1fr;
   }
 
-  .add-lookup-grid,
-  .add-driver-grid {
+  .inline-add,
+  .inline-add-driver {
     grid-template-columns: 1fr;
   }
 }
