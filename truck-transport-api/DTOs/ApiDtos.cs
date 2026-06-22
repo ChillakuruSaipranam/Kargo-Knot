@@ -43,3 +43,17 @@ public record TripFilterQuery(
 public record LoginLogDto(
     Guid Id, Guid? UserId, string Email, string Action, bool Success,
     string IpAddress, string UserAgent, string CreatedAt);
+
+public record RepairDto(
+    Guid Id, string Date, string TruckNumber, string Description, decimal Cost,
+    string CreatedBy, string CreatedAt);
+
+public record CreateRepairRequest(string Date, string TruckNumber, string Description, decimal Cost);
+
+public record UpdateRepairRequest(string Date, string TruckNumber, string Description, decimal Cost);
+
+public record RepairSummaryDto(int TotalRepairs, decimal TotalCost);
+
+public record RepairFilterQuery(
+    string? DateFrom, string? DateTo, string? TruckNumber,
+    decimal? MinCost, decimal? MaxCost);

@@ -57,6 +57,18 @@
   gap: 0.75rem;
 }
 
+.field-error {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--danger);
+}
+
+label:has(.field-error) input.ng-invalid,
+label:has(.field-error) select.ng-invalid {
+  border-color: var(--danger);
+}
+
 .alert-error {
   background: #fef3f2;
   color: var(--danger);

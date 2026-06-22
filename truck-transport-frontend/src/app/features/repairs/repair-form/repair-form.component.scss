@@ -1,0 +1,57 @@
+.repair-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.form-grid label,
+.field-with-add,
+.repair-form > label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field-with-add > span {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--navy-700);
+}
+
+.inline-add {
+  display: grid;
+  grid-template-columns: minmax(10rem, 1fr) minmax(10rem, 1.2fr) auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 6rem;
+}
+
+.field-error {
+  font-size: 0.82rem;
+  color: var(--danger);
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+@media (max-width: 720px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inline-add {
+    grid-template-columns: 1fr;
+  }
+}

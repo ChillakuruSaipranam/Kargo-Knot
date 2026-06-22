@@ -51,12 +51,17 @@
             </select>
             <input
               type="text"
-              placeholder="New truck number"
+              placeholder="New truck (e.g. MH-12-AB-4521)"
               [value]="newTruckNumber()"
               (input)="newTruckNumber.set($any($event.target).value)"
             />
             <button class="btn btn-secondary" type="button" (click)="addTruck()">Add</button>
           </div>
+          @if (hasError('truckNumber', 'required')) {
+            <span class="field-error">Truck number is required.</span>
+          } @else if (hasError('truckNumber', 'indianVehicle')) {
+            <span class="field-error">Enter a valid Indian vehicle number (e.g. MH-12-AB-4521).</span>
+          }
         </label>
 
         <label class="field-with-add">
@@ -118,6 +123,11 @@
         <label>
           <span>Driver Phone</span>
           <input type="tel" formControlName="driverPhone" placeholder="+91 98765 43210" />
+          @if (hasError('driverPhone', 'required')) {
+            <span class="field-error">Phone number is required.</span>
+          } @else if (hasError('driverPhone', 'indianPhone')) {
+            <span class="field-error">Enter a valid Indian mobile number (10 digits).</span>
+          }
         </label>
         <label>
           <span>Driver License Number</span>

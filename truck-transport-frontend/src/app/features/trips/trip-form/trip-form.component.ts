@@ -5,6 +5,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { LookupService } from '../../../core/services/lookup.service';
 import { TransportService } from '../../../core/services/transport.service';
 import { LookupItem } from '../../../core/models/lookup.model';
+import {
+  indianPhoneValidator,
+  indianVehicleValidator,
+  isValidIndianPhone,
+  isValidIndianVehicle,
+} from '../../../core/validators/india.validators';
 
 @Component({
   selector: 'app-trip-form',
@@ -40,13 +46,13 @@ export class TripFormComponent implements OnInit {
   readonly form = this.fb.nonNullable.group({
     date: ['', Validators.required],
     shift: ['Day' as 'Day' | 'Night', Validators.required],
-    truckNumber: ['', Validators.required],
+    truckNumber: ['', [Validators.required, indianVehicleValidator()]],
     quarryName: ['', Validators.required],
     numberOfTrips: [1, [Validators.required, Validators.min(1), Validators.max(50)]],
     tonnes: [0, [Validators.required, Validators.min(0.01)]],
     dieselLiters: [0, [Validators.required, Validators.min(0)]],
     driverName: ['', Validators.required],
-    driverPhone: ['', [Validators.required, Validators.pattern(/^\+?[\d\s-]{10,}$/)]],
+    driverPhone: ['', [Validators.required, indianPhoneValidator()]],
     driverLicense: ['', Validators.required],
     startTime: ['', Validators.required],
     endTime: ['', Validators.required],
@@ -87,6 +93,11 @@ export class TripFormComponent implements OnInit {
   addTruck(): void {
     const number = this.newTruckNumber().trim();
     if (!number) {
+      this.lookupError.set('Truck number is required.');
+      return;
+    }
+    if (!isValidIndianVehicle(number)) {
+      this.lookupError.set('Enter a valid Indian vehicle number (e.g. MH-12-AB-4521).');
       return;
     }
 
@@ -124,6 +135,10 @@ export class TripFormComponent implements OnInit {
     const license = this.newDriverLicense().trim();
     if (!name || !phone || !license) {
       this.lookupError.set('Driver name, phone, and license are required.');
+      return;
+    }
+    if (!isValidIndianPhone(phone)) {
+      this.lookupError.set('Enter a valid Indian mobile number (10 digits, e.g. +91 98765 43210).');
       return;
     }
 
@@ -211,5 +226,10 @@ export class TripFormComponent implements OnInit {
 
   private sortByLabel(items: LookupItem[]): LookupItem[] {
     return [...items].sort((a, b) => a.label.localeCompare(b.label));
+  }
+
+  hasError(controlName: keyof typeof this.form.controls, errorKey: string): boolean {
+    const control = this.form.controls[controlName];
+    return control.touched && control.hasError(errorKey);
   }
 }

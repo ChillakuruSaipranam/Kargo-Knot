@@ -1,0 +1,85 @@
+<section class="page-header">
+  <div>
+    <p class="eyebrow">Fleet Maintenance</p>
+    <h2>{{ isEditMode ? 'Edit Repair Record' : 'New Repair Entry' }}</h2>
+    <p class="subtitle">Log truck repair work with description and cost for fleet cost tracking.</p>
+  </div>
+  <a class="btn btn-secondary" routerLink="/repairs">Back to Repairs</a>
+</section>
+
+<section class="panel">
+  <form class="repair-form" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="form-grid two-col">
+      <label>
+        <span>Repair Date</span>
+        <input type="date" formControlName="date" />
+        @if (hasError('date', 'required')) {
+          <span class="field-error">Date is required.</span>
+        }
+      </label>
+
+      <label>
+        <span>Repair Cost (₹)</span>
+        <input type="number" formControlName="cost" min="0" step="0.01" />
+        @if (hasError('cost', 'required')) {
+          <span class="field-error">Cost is required.</span>
+        } @else if (hasError('cost', 'min')) {
+          <span class="field-error">Cost cannot be negative.</span>
+        }
+      </label>
+    </div>
+
+    <label class="field-with-add">
+      <span>Truck Number</span>
+      <div class="inline-add">
+        <select formControlName="truckNumber">
+          <option value="">Select truck</option>
+          @for (truck of trucks(); track truck.id) {
+            <option [value]="truck.label">{{ truck.label }}</option>
+          }
+        </select>
+        <input
+          type="text"
+          placeholder="New truck (e.g. MH-12-AB-4521)"
+          [value]="newTruckNumber()"
+          (input)="newTruckNumber.set($any($event.target).value)"
+        />
+        <button class="btn btn-secondary" type="button" (click)="addTruck()">Add</button>
+      </div>
+      @if (hasError('truckNumber', 'required')) {
+        <span class="field-error">Truck number is required.</span>
+      } @else if (hasError('truckNumber', 'indianVehicle')) {
+        <span class="field-error">Enter a valid Indian vehicle number (e.g. MH-12-AB-4521).</span>
+      }
+    </label>
+
+    <label>
+      <span>Repair Description</span>
+      <textarea formControlName="description" rows="4" placeholder="Describe the repair work performed"></textarea>
+      @if (hasError('description', 'required')) {
+        <span class="field-error">Description is required.</span>
+      } @else if (hasError('description', 'minlength')) {
+        <span class="field-error">Description must be at least 3 characters.</span>
+      }
+    </label>
+
+    @if (lookupError()) {
+      <div class="alert alert-error" role="alert">{{ lookupError() }}</div>
+    }
+
+    @if (loadError()) {
+      <div class="alert alert-error" role="alert">{{ loadError() }}</div>
+    }
+
+    @if (submitMessage) {
+      <div class="alert alert-success" role="status">{{ submitMessage }}</div>
+    }
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">
+        {{ isEditMode ? 'Update Repair Record' : 'Register Repair' }}
+      </button>
+      <a class="btn btn-secondary" routerLink="/repairs">Cancel</a>
+    </div>
+  </form>
+</section>

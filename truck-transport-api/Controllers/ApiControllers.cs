@@ -84,6 +84,8 @@ public class LookupsController(AppDbContext db) : ControllerBase
     {
         var number = request.Number.Trim();
         if (string.IsNullOrWhiteSpace(number)) return BadRequest(new { message = "Truck number is required." });
+        if (!ValidationHelper.IsValidIndianVehicle(number))
+            return BadRequest(new { message = "Enter a valid Indian vehicle number (e.g. MH-12-AB-4521)." });
         if (await db.Trucks.AnyAsync(t => t.Number == number))
             return Conflict(new { message = "Truck already exists." });
 
@@ -122,6 +124,8 @@ public class LookupsController(AppDbContext db) : ControllerBase
     {
         var name = request.Name.Trim();
         if (string.IsNullOrWhiteSpace(name)) return BadRequest(new { message = "Driver name is required." });
+        if (!ValidationHelper.IsValidIndianPhone(request.Phone))
+            return BadRequest(new { message = "Enter a valid Indian mobile number (10 digits)." });
         if (await db.Drivers.AnyAsync(d => d.Name == name))
             return Conflict(new { message = "Driver already exists." });
 
@@ -174,6 +178,9 @@ public class TripsController(AppDbContext db, TripQueryService queryService) : C
     [HttpPost]
     public async Task<ActionResult<IEnumerable<TripDto>>> Create([FromBody] CreateTripRequest request)
     {
+        var validationError = ValidateTripRequest(request.TruckNumber, request.DriverPhone);
+        if (validationError is not null) return BadRequest(new { message = validationError });
+
         var email = User.FindFirstValue(ClaimTypes.Email) ?? "unknown";
         var count = Math.Clamp(request.NumberOfTrips, 1, 50);
         await EnsureLookupsExist(request.TruckNumber, request.QuarryName, request.DriverName, request.DriverPhone, request.DriverLicense);
@@ -211,6 +218,9 @@ public class TripsController(AppDbContext db, TripQueryService queryService) : C
         var trip = await db.Trips.FindAsync(id);
         if (trip is null) return NotFound();
 
+        var validationError = ValidateTripRequest(request.TruckNumber, request.DriverPhone);
+        if (validationError is not null) return BadRequest(new { message = validationError });
+
         await EnsureLookupsExist(request.TruckNumber, request.QuarryName, request.DriverName, request.DriverPhone, request.DriverLicense);
         trip.Date = DateOnly.Parse(request.Date);
         trip.Shift = request.Shift;
@@ -239,6 +249,15 @@ public class TripsController(AppDbContext db, TripQueryService queryService) : C
         return NoContent();
     }
 
+    private static string? ValidateTripRequest(string truckNumber, string driverPhone)
+    {
+        if (!ValidationHelper.IsValidIndianVehicle(truckNumber))
+            return "Enter a valid Indian vehicle number (e.g. MH-12-AB-4521).";
+        if (!ValidationHelper.IsValidIndianPhone(driverPhone))
+            return "Enter a valid Indian mobile number (10 digits).";
+        return null;
+    }
+
     private async Task EnsureLookupsExist(string truckNumber, string quarryName, string driverName, string driverPhone, string driverLicense)
     {
         if (!await db.Trucks.AnyAsync(t => t.Number == truckNumber))
@@ -247,6 +266,107 @@ public class TripsController(AppDbContext db, TripQueryService queryService) : C
             db.Quarries.Add(new Quarry { Id = Guid.NewGuid(), Name = quarryName });
         if (!await db.Drivers.AnyAsync(d => d.Name == driverName))
             db.Drivers.Add(new Driver { Id = Guid.NewGuid(), Name = driverName, Phone = driverPhone, License = driverLicense });
+        await db.SaveChangesAsync();
+    }
+}
+
+[ApiController]
+[Route("api/repairs")]
+[Authorize]
+public class RepairsController(AppDbContext db, RepairQueryService queryService) : ControllerBase
+{
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<RepairDto>>> GetRepairs([FromQuery] RepairFilterQuery filter)
+    {
+        var repairs = await queryService.ApplyFilters(filter)
+            .OrderByDescending(r => r.Date)
+            .ThenByDescending(r => r.CreatedAt)
+            .ToListAsync();
+        return Ok(repairs.Select(RepairQueryService.ToDto));
+    }
+
+    [HttpGet("summary")]
+    public async Task<ActionResult<RepairSummaryDto>> GetSummary([FromQuery] RepairFilterQuery filter)
+    {
+        var repairs = await queryService.ApplyFilters(filter).ToListAsync();
+        return Ok(new RepairSummaryDto(repairs.Count, repairs.Sum(r => r.Cost)));
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<RepairDto>> GetById(Guid id)
+    {
+        var repair = await db.Repairs.FindAsync(id);
+        return repair is null ? NotFound() : Ok(RepairQueryService.ToDto(repair));
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<RepairDto>> Create([FromBody] CreateRepairRequest request)
+    {
+        var validationError = ValidateRepairRequest(request.TruckNumber, request.Description, request.Cost);
+        if (validationError is not null) return BadRequest(new { message = validationError });
+
+        var email = User.FindFirstValue(ClaimTypes.Email) ?? "unknown";
+        await EnsureTruckExists(request.TruckNumber);
+
+        var repair = new TruckRepair
+        {
+            Id = Guid.NewGuid(),
+            Date = DateOnly.Parse(request.Date),
+            TruckNumber = request.TruckNumber.Trim(),
+            Description = request.Description.Trim(),
+            Cost = request.Cost,
+            CreatedBy = email,
+        };
+        db.Repairs.Add(repair);
+        await db.SaveChangesAsync();
+        return Ok(RepairQueryService.ToDto(repair));
+    }
+
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<RepairDto>> Update(Guid id, [FromBody] UpdateRepairRequest request)
+    {
+        var repair = await db.Repairs.FindAsync(id);
+        if (repair is null) return NotFound();
+
+        var validationError = ValidateRepairRequest(request.TruckNumber, request.Description, request.Cost);
+        if (validationError is not null) return BadRequest(new { message = validationError });
+
+        await EnsureTruckExists(request.TruckNumber);
+        repair.Date = DateOnly.Parse(request.Date);
+        repair.TruckNumber = request.TruckNumber.Trim();
+        repair.Description = request.Description.Trim();
+        repair.Cost = request.Cost;
+        repair.UpdatedAt = DateTime.UtcNow;
+        await db.SaveChangesAsync();
+        return Ok(RepairQueryService.ToDto(repair));
+    }
+
+    [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var repair = await db.Repairs.FindAsync(id);
+        if (repair is null) return NotFound();
+        db.Repairs.Remove(repair);
+        await db.SaveChangesAsync();
+        return NoContent();
+    }
+
+    private static string? ValidateRepairRequest(string truckNumber, string description, decimal cost)
+    {
+        if (!ValidationHelper.IsValidIndianVehicle(truckNumber))
+            return "Enter a valid Indian vehicle number (e.g. MH-12-AB-4521).";
+        if (string.IsNullOrWhiteSpace(description))
+            return "Repair description is required.";
+        if (cost < 0)
+            return "Repair cost cannot be negative.";
+        return null;
+    }
+
+    private async Task EnsureTruckExists(string truckNumber)
+    {
+        if (!await db.Trucks.AnyAsync(t => t.Number == truckNumber))
+            db.Trucks.Add(new Truck { Id = Guid.NewGuid(), Number = truckNumber.Trim() });
         await db.SaveChangesAsync();
     }
 }

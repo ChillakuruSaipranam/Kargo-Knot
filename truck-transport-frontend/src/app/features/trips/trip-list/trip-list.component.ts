@@ -2,7 +2,8 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
-import { TransportService } from '../../../core/services/transport.service';
+import { forkJoin } from 'rxjs';
+import { TransportService, TripAnalytics } from '../../../core/services/transport.service';
 import { LookupService } from '../../../core/services/lookup.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { LookupItem } from '../../../core/models/lookup.model';
@@ -37,8 +38,17 @@ export class TripListComponent implements OnInit {
   });
 
   readonly filteredTrips = signal<TransportTrip[]>([]);
+  readonly summary = signal<TripAnalytics>({
+    totalTrips: 0,
+    totalTonnes: 0,
+    totalDieselLiters: 0,
+    dayTrips: 0,
+    nightTrips: 0,
+    activeFilters: [],
+  });
   readonly loadError = signal('');
   readonly isLoading = signal(true);
+  readonly hasActiveFilters = signal(false);
 
   ngOnInit(): void {
     this.loadLookups();
@@ -81,9 +91,15 @@ export class TripListComponent implements OnInit {
   private loadTrips(filter = emptyTripFilter()): void {
     this.isLoading.set(true);
     this.loadError.set('');
-    this.transportService.filter(filter).subscribe({
-      next: (trips) => {
+    this.hasActiveFilters.set(this.isFilterActive(filter));
+
+    forkJoin({
+      trips: this.transportService.filter(filter),
+      analytics: this.transportService.getAnalytics(filter),
+    }).subscribe({
+      next: ({ trips, analytics }) => {
         this.filteredTrips.set(trips);
+        this.summary.set(analytics);
         this.isLoading.set(false);
       },
       error: () => {
@@ -92,6 +108,19 @@ export class TripListComponent implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  private isFilterActive(filter: ReturnType<typeof emptyTripFilter>): boolean {
+    return !!(
+      filter.dateFrom ||
+      filter.dateTo ||
+      filter.shift ||
+      filter.truckNumber ||
+      filter.quarryName ||
+      filter.driverName ||
+      filter.minTonnes !== null ||
+      filter.maxTonnes !== null
+    );
   }
 
   private sortByLabel(items: LookupItem[]): LookupItem[] {

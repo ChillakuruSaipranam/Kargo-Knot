@@ -11,6 +11,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Driver> Drivers => Set<Driver>();
     public DbSet<TransportTrip> Trips => Set<TransportTrip>();
     public DbSet<LoginLog> LoginLogs => Set<LoginLog>();
+    public DbSet<TruckRepair> Repairs => Set<TruckRepair>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -24,5 +25,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(x => x.DieselLiters).HasPrecision(10, 2);
         });
         modelBuilder.Entity<LoginLog>(e => e.HasIndex(x => x.CreatedAt));
+        modelBuilder.Entity<TruckRepair>(e =>
+        {
+            e.Property(x => x.Cost).HasPrecision(10, 2);
+            e.HasIndex(x => x.Date);
+            e.HasIndex(x => x.TruckNumber);
+        });
     }
 }

@@ -33,6 +33,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<TripQueryService>();
+builder.Services.AddScoped<RepairQueryService>();
 builder.Services.AddSingleton<JwtTokenService>();
 builder.Services.AddHostedService<DatabaseMigrationHostedService>();
 

@@ -32,6 +32,50 @@
   color: var(--navy-800);
 }
 
+.repair-stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.repair-filter-bar {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1fr) auto;
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1rem;
+}
+
+.repair-filter-bar label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.repair-filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.repair-cost-badge {
+  font-weight: 700;
+  color: var(--navy-700);
+  font-size: 0.88rem;
+}
+
+@media (max-width: 720px) {
+  .repair-filter-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .repair-filter-actions {
+    flex-direction: column;
+  }
+
+  .repair-filter-actions .btn {
+    width: 100%;
+  }
+}
+
 .recent-cards {
   display: flex;
   flex-direction: column;

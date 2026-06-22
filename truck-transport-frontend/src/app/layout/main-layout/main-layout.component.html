@@ -46,6 +46,8 @@
         <a routerLink="/dashboard" routerLinkActive="active" (click)="closeNav()">Dashboard</a>
         <a routerLink="/trips" routerLinkActive="active" (click)="closeNav()">Trip Records</a>
         <a routerLink="/trips/new" routerLinkActive="active" (click)="closeNav()">New Trip Entry</a>
+        <a routerLink="/repairs" routerLinkActive="active" (click)="closeNav()">Truck Repairs</a>
+        <a routerLink="/repairs/new" routerLinkActive="active" (click)="closeNav()">New Repair Entry</a>
         @if (auth.isAdmin()) {
           <a routerLink="/admin" routerLinkActive="active" (click)="closeNav()">Administration</a>
         }

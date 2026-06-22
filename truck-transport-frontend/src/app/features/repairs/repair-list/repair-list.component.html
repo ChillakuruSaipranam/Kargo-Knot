@@ -1,0 +1,136 @@
+<section class="page-header">
+  <div>
+    <p class="eyebrow">Fleet Maintenance</p>
+    <h2>Truck Repair Records</h2>
+    <p class="subtitle">Track repair work, costs, and maintenance history across the fleet.</p>
+  </div>
+  <a class="btn btn-primary" routerLink="/repairs/new">Add Repair Record</a>
+</section>
+
+<section class="panel filter-panel">
+  <header class="panel-header compact">
+    <div>
+      <h3>Filter Repairs</h3>
+      <p>Refine results by date, truck, or cost range.</p>
+    </div>
+  </header>
+
+  <form class="filter-grid" [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+    <label>
+      <span>Date From</span>
+      <input type="date" formControlName="dateFrom" />
+    </label>
+    <label>
+      <span>Date To</span>
+      <input type="date" formControlName="dateTo" />
+    </label>
+    <label>
+      <span>Truck Number</span>
+      <select formControlName="truckNumber">
+        <option value="">All trucks</option>
+        @for (truck of trucks(); track truck.id) {
+          <option [value]="truck.label">{{ truck.label }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      <span>Min Cost (₹)</span>
+      <input type="number" formControlName="minCost" min="0" step="0.01" />
+    </label>
+    <label>
+      <span>Max Cost (₹)</span>
+      <input type="number" formControlName="maxCost" min="0" step="0.01" />
+    </label>
+
+    <div class="filter-actions">
+      <button class="btn btn-primary" type="submit">Apply Filters</button>
+      <button class="btn btn-secondary" type="button" (click)="resetFilters()">Reset</button>
+    </div>
+  </form>
+</section>
+
+@if (!isLoading()) {
+  <div class="stats-grid">
+    <article class="stat-card">
+      <span class="stat-label">{{ hasActiveFilters() ? 'Filtered Repairs' : 'Total Repairs' }}</span>
+      <strong class="stat-value">{{ summary().totalRepairs }}</strong>
+    </article>
+    <article class="stat-card highlight">
+      <span class="stat-label">Total Repair Cost</span>
+      <strong class="stat-value">{{ summary().totalCost | currency: 'INR':'symbol':'1.0-0' }}</strong>
+    </article>
+  </div>
+}
+
+@if (loadError()) {
+  <p class="error-banner">{{ loadError() }}</p>
+}
+
+<section class="panel">
+  <header class="panel-header compact">
+    <div>
+      <h3>Results</h3>
+      <p>{{ repairs().length }} repair record(s) found</p>
+    </div>
+  </header>
+
+  <div class="table-wrap desktop-only">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Truck No.</th>
+          <th>Description</th>
+          <th>Cost (₹)</th>
+          <th>Recorded By</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (repair of repairs(); track repair.id) {
+          <tr>
+            <td>{{ repair.date }}</td>
+            <td>{{ repair.truckNumber }}</td>
+            <td>{{ repair.description }}</td>
+            <td>{{ repair.cost | currency: 'INR':'symbol':'1.2-2' }}</td>
+            <td>{{ repair.createdBy }}</td>
+            <td class="actions">
+              <a class="btn btn-text" [routerLink]="['/repairs', repair.id, 'edit']">Edit</a>
+              @if (auth.isAdmin()) {
+                <button class="btn btn-text danger" type="button" (click)="deleteRepair(repair.id)">Delete</button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="empty-row">No repair records match your filter criteria.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="repair-cards mobile-only">
+    @for (repair of repairs(); track repair.id) {
+      <article class="repair-card">
+        <header class="repair-card-header">
+          <div>
+            <strong>{{ repair.date }}</strong>
+            <span class="repair-truck">{{ repair.truckNumber }}</span>
+          </div>
+          <span class="repair-cost">{{ repair.cost | currency: 'INR':'symbol':'1.0-0' }}</span>
+        </header>
+        <p class="repair-description">{{ repair.description }}</p>
+        <p class="repair-meta">Recorded by {{ repair.createdBy }}</p>
+        <div class="repair-card-actions">
+          <a class="btn btn-secondary" [routerLink]="['/repairs', repair.id, 'edit']">Edit</a>
+          @if (auth.isAdmin()) {
+            <button class="btn btn-secondary danger-outline" type="button" (click)="deleteRepair(repair.id)">Delete</button>
+          }
+        </div>
+      </article>
+    } @empty {
+      <p class="empty-row">No repair records match your filter criteria.</p>
+    }
+  </div>
+</section>

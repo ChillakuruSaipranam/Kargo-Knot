@@ -75,6 +75,36 @@
   </form>
 </section>
 
+@if (!isLoading()) {
+  <div class="stats-grid">
+    <article class="stat-card">
+      <span class="stat-label">{{ hasActiveFilters() ? 'Filtered Trips' : 'Total Trips' }}</span>
+      <strong class="stat-value">{{ summary().totalTrips }}</strong>
+    </article>
+    <article class="stat-card highlight">
+      <span class="stat-label">Total Tonnes Moved</span>
+      <strong class="stat-value">{{ summary().totalTonnes | number: '1.2-2' }}</strong>
+    </article>
+    <article class="stat-card">
+      <span class="stat-label">Total Diesel (L)</span>
+      <strong class="stat-value">{{ summary().totalDieselLiters | number: '1.2-2' }}</strong>
+    </article>
+    <article class="stat-card">
+      <span class="stat-label">Day / Night</span>
+      <strong class="stat-value">{{ summary().dayTrips }} / {{ summary().nightTrips }}</strong>
+    </article>
+  </div>
+
+  @if (summary().activeFilters.length) {
+    <div class="active-filters">
+      <span class="active-filters-label">Active filters:</span>
+      @for (filter of summary().activeFilters; track filter) {
+        <span class="filter-chip">{{ filter }}</span>
+      }
+    </div>
+  }
+}
+
 @if (loadError()) {
   <p class="error-banner">{{ loadError() }}</p>
 }

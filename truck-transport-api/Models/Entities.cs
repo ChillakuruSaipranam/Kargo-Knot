@@ -65,3 +65,15 @@ public class LoginLog
     public string UserAgent { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
+
+public class TruckRepair
+{
+    public Guid Id { get; set; }
+    public DateOnly Date { get; set; }
+    public string TruckNumber { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public decimal Cost { get; set; }
+    public string CreatedBy { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? UpdatedAt { get; set; }
+}

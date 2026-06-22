@@ -35,6 +35,21 @@ export const routes: Routes = [
           import('./features/trips/trip-form/trip-form.component').then((m) => m.TripFormComponent),
       },
       {
+        path: 'repairs',
+        loadComponent: () =>
+          import('./features/repairs/repair-list/repair-list.component').then((m) => m.RepairListComponent),
+      },
+      {
+        path: 'repairs/new',
+        loadComponent: () =>
+          import('./features/repairs/repair-form/repair-form.component').then((m) => m.RepairFormComponent),
+      },
+      {
+        path: 'repairs/:id/edit',
+        loadComponent: () =>
+          import('./features/repairs/repair-form/repair-form.component').then((m) => m.RepairFormComponent),
+      },
+      {
         path: 'admin',
         canActivate: [adminGuard],
         loadComponent: () => import('./features/admin/admin.component').then((m) => m.AdminComponent),

@@ -83,8 +83,88 @@
         <p>{{ trip.tonnes | number: '1.2-2' }} t · {{ trip.driverName }}</p>
         <p class="recent-card-time">{{ trip.startTime }} – {{ trip.endTime }}</p>
       </article>
-    } @empty {
+    }     @empty {
       <p class="empty-row">No trip records available yet.</p>
+    }
+  </div>
+</section>
+
+<div class="stats-grid repair-stats">
+  <article class="stat-card">
+    <span class="stat-label">Total Repairs</span>
+    <strong class="stat-value">{{ repairSummary().totalRepairs }}</strong>
+  </article>
+  <article class="stat-card highlight">
+    <span class="stat-label">Total Repair Cost</span>
+    <strong class="stat-value">{{ repairSummary().totalCost | currency: 'INR':'symbol':'1.0-0' }}</strong>
+  </article>
+</div>
+
+<section class="panel">
+  <header class="panel-header">
+    <div>
+      <h3>Truck Repair Records</h3>
+      <p>Maintenance history with description and cost. Filter by truck to view fleet-specific repairs.</p>
+    </div>
+    <a routerLink="/repairs/new" class="btn btn-secondary">Add Repair</a>
+  </header>
+
+  <form class="repair-filter-bar" [formGroup]="repairFilterForm" (ngSubmit)="applyRepairFilter()">
+    <label>
+      <span>Filter by Truck</span>
+      <select formControlName="truckNumber">
+        <option value="">All trucks</option>
+        @for (truck of trucks(); track truck.id) {
+          <option [value]="truck.label">{{ truck.label }}</option>
+        }
+      </select>
+    </label>
+    <div class="repair-filter-actions">
+      <button class="btn btn-primary" type="submit">Apply</button>
+      <button class="btn btn-secondary" type="button" (click)="resetRepairFilter()">Reset</button>
+      <a routerLink="/repairs" class="btn btn-secondary">View All Repairs</a>
+    </div>
+  </form>
+
+  <div class="table-wrap desktop-only">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Truck No.</th>
+          <th>Description</th>
+          <th>Cost (₹)</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (repair of recentRepairs(); track repair.id) {
+          <tr>
+            <td>{{ repair.date }}</td>
+            <td>{{ repair.truckNumber }}</td>
+            <td>{{ repair.description }}</td>
+            <td>{{ repair.cost | currency: 'INR':'symbol':'1.2-2' }}</td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="4" class="empty-row">No repair records available yet.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="recent-cards mobile-only">
+    @for (repair of recentRepairs(); track repair.id) {
+      <article class="recent-card">
+        <div class="recent-card-top">
+          <strong>{{ repair.date }}</strong>
+          <span class="repair-cost-badge">{{ repair.cost | currency: 'INR':'symbol':'1.0-0' }}</span>
+        </div>
+        <p>{{ repair.truckNumber }}</p>
+        <p>{{ repair.description }}</p>
+      </article>
+    } @empty {
+      <p class="empty-row">No repair records available yet.</p>
     }
   </div>
 </section>

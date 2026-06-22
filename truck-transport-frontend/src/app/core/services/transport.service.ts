@@ -25,15 +25,25 @@ interface ApiTrip {
 interface ApiSummary {
   totalTrips: number;
   totalTonnes: number;
+  totalDieselLiters: number;
   dayTrips: number;
   nightTrips: number;
+}
+
+interface ApiAnalytics extends ApiSummary {
+  activeFilters: string[];
 }
 
 export interface TripSummary {
   totalTrips: number;
   totalTonnes: number;
+  totalDieselLiters: number;
   dayTrips: number;
   nightTrips: number;
+}
+
+export interface TripAnalytics extends TripSummary {
+  activeFilters: string[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -55,14 +65,13 @@ export class TransportService {
   }
 
   getSummary(): Observable<TripSummary> {
-    return this.http.get<ApiSummary>(`${this.apiUrl}/summary`).pipe(
-      map((summary) => ({
-        totalTrips: summary.totalTrips,
-        totalTonnes: summary.totalTonnes,
-        dayTrips: summary.dayTrips,
-        nightTrips: summary.nightTrips,
-      }))
-    );
+    return this.http.get<ApiSummary>(`${this.apiUrl}/summary`).pipe(map((summary) => this.mapSummary(summary)));
+  }
+
+  getAnalytics(filter?: TripFilter): Observable<TripAnalytics> {
+    return this.http
+      .get<ApiAnalytics>(`${this.apiUrl}/analytics`, { params: this.buildParams(filter) })
+      .pipe(map((analytics) => ({ ...this.mapSummary(analytics), activeFilters: analytics.activeFilters ?? [] })));
   }
 
   add(trip: Omit<TransportTrip, 'id' | 'createdAt'>): Observable<TransportTrip> {
@@ -124,6 +133,16 @@ export class TransportService {
     if (filter.minTonnes !== null) params = params.set('minTonnes', filter.minTonnes);
     if (filter.maxTonnes !== null) params = params.set('maxTonnes', filter.maxTonnes);
     return params;
+  }
+
+  private mapSummary(summary: ApiSummary): TripSummary {
+    return {
+      totalTrips: summary.totalTrips,
+      totalTonnes: summary.totalTonnes,
+      totalDieselLiters: summary.totalDieselLiters ?? 0,
+      dayTrips: summary.dayTrips,
+      nightTrips: summary.nightTrips,
+    };
   }
 
   private mapTrip(trip: ApiTrip): TransportTrip {

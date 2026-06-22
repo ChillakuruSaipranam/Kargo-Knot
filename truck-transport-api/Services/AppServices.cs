@@ -202,6 +202,39 @@ public static class DbSeeder
                 new TransportTrip { Id = Guid.NewGuid(), Date = new DateOnly(2026, 6, 14), Shift = "Night", TruckNumber = "MH-12-AB-4521", QuarryName = "Blue Ridge Quarry", Tonnes = 19.25m, DieselLiters = 50m, DriverName = "Suresh Patil", DriverPhone = "+91 91234 56789", DriverLicense = "MH-2023-44102", StartTime = new TimeOnly(21, 0), EndTime = new TimeOnly(5, 0), NumberOfTrips = 1, CreatedBy = "user@transport.com" });
         }
 
+        if (!await db.Repairs.AnyAsync())
+        {
+            db.Repairs.AddRange(
+                new TruckRepair { Id = Guid.NewGuid(), Date = new DateOnly(2026, 6, 10), TruckNumber = "MH-12-AB-4521", Description = "Brake pad replacement and wheel alignment", Cost = 12500m, CreatedBy = "admin@transport.com" },
+                new TruckRepair { Id = Guid.NewGuid(), Date = new DateOnly(2026, 6, 11), TruckNumber = "MH-12-CD-7788", Description = "Engine oil change and air filter service", Cost = 4800m, CreatedBy = "user@transport.com" },
+                new TruckRepair { Id = Guid.NewGuid(), Date = new DateOnly(2026, 6, 13), TruckNumber = "MH-14-EF-3301", Description = "Tyre replacement (2 rear tyres)", Cost = 28000m, CreatedBy = "admin@transport.com" });
+        }
+
         await db.SaveChangesAsync();
     }
+}
+
+public class RepairQueryService(AppDbContext db)
+{
+    public IQueryable<TruckRepair> ApplyFilters(RepairFilterQuery filter)
+    {
+        var query = db.Repairs.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filter.DateFrom) && DateOnly.TryParse(filter.DateFrom, out var from))
+            query = query.Where(r => r.Date >= from);
+        if (!string.IsNullOrWhiteSpace(filter.DateTo) && DateOnly.TryParse(filter.DateTo, out var to))
+            query = query.Where(r => r.Date <= to);
+        if (!string.IsNullOrWhiteSpace(filter.TruckNumber))
+            query = query.Where(r => r.TruckNumber == filter.TruckNumber);
+        if (filter.MinCost.HasValue)
+            query = query.Where(r => r.Cost >= filter.MinCost.Value);
+        if (filter.MaxCost.HasValue)
+            query = query.Where(r => r.Cost <= filter.MaxCost.Value);
+
+        return query;
+    }
+
+    public static RepairDto ToDto(TruckRepair r) => new(
+        r.Id, r.Date.ToString("yyyy-MM-dd"), r.TruckNumber, r.Description, r.Cost,
+        r.CreatedBy, r.CreatedAt.ToString("o"));
 }
