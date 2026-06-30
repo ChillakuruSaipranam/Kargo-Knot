@@ -64,6 +64,14 @@
   color: var(--danger);
 }
 
+.field-hint {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
 label:has(.field-error) input.ng-invalid,
 label:has(.field-error) select.ng-invalid {
   border-color: var(--danger);

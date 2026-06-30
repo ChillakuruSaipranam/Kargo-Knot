@@ -158,7 +158,12 @@ public class TripsController(AppDbContext db, TripQueryService queryService) : C
     public async Task<ActionResult<TripSummaryDto>> GetSummary()
     {
         var trips = await db.Trips.ToListAsync();
-        return Ok(new TripSummaryDto(trips.Count, trips.Sum(t => t.Tonnes), trips.Sum(t => t.DieselLiters), trips.Count(t => t.Shift == "Day"), trips.Count(t => t.Shift == "Night")));
+        return Ok(new TripSummaryDto(
+            trips.Sum(t => t.NumberOfTrips),
+            trips.Sum(t => t.Tonnes),
+            trips.Sum(t => t.DieselLiters),
+            trips.Where(t => t.Shift == "Day").Sum(t => t.NumberOfTrips),
+            trips.Where(t => t.Shift == "Night").Sum(t => t.NumberOfTrips)));
     }
 
     [HttpGet("analytics")]
@@ -176,40 +181,34 @@ public class TripsController(AppDbContext db, TripQueryService queryService) : C
     }
 
     [HttpPost]
-    public async Task<ActionResult<IEnumerable<TripDto>>> Create([FromBody] CreateTripRequest request)
+    public async Task<ActionResult<TripDto>> Create([FromBody] CreateTripRequest request)
     {
         var validationError = ValidateTripRequest(request.TruckNumber, request.DriverPhone);
         if (validationError is not null) return BadRequest(new { message = validationError });
 
         var email = User.FindFirstValue(ClaimTypes.Email) ?? "unknown";
-        var count = Math.Clamp(request.NumberOfTrips, 1, 50);
         await EnsureLookupsExist(request.TruckNumber, request.QuarryName, request.DriverName, request.DriverPhone, request.DriverLicense);
 
-        var created = new List<TransportTrip>();
-        for (var i = 0; i < count; i++)
+        var trip = new TransportTrip
         {
-            var trip = new TransportTrip
-            {
-                Id = Guid.NewGuid(),
-                Date = DateOnly.Parse(request.Date),
-                Shift = request.Shift,
-                TruckNumber = request.TruckNumber,
-                QuarryName = request.QuarryName,
-                    NumberOfTrips = request.NumberOfTrips,
-                    Tonnes = request.Tonnes,
-                    DieselLiters = request.DieselLiters,
-                DriverName = request.DriverName,
-                DriverPhone = request.DriverPhone,
-                DriverLicense = request.DriverLicense,
-                StartTime = TimeOnly.Parse(request.StartTime),
-                EndTime = TimeOnly.Parse(request.EndTime),
-                CreatedBy = email,
-            };
-            db.Trips.Add(trip);
-            created.Add(trip);
-        }
+            Id = Guid.NewGuid(),
+            Date = DateOnly.Parse(request.Date),
+            Shift = request.Shift,
+            TruckNumber = request.TruckNumber,
+            QuarryName = request.QuarryName,
+            NumberOfTrips = Math.Clamp(request.NumberOfTrips, 1, 50),
+            Tonnes = request.Tonnes,
+            DieselLiters = request.DieselLiters,
+            DriverName = request.DriverName,
+            DriverPhone = request.DriverPhone,
+            DriverLicense = request.DriverLicense,
+            StartTime = TimeOnly.Parse(request.StartTime),
+            EndTime = TimeOnly.Parse(request.EndTime),
+            CreatedBy = email,
+        };
+        db.Trips.Add(trip);
         await db.SaveChangesAsync();
-        return Ok(created.Select(TripQueryService.ToDto));
+        return Ok(TripQueryService.ToDto(trip));
     }
 
     [HttpPut("{id:guid}")]
@@ -228,6 +227,7 @@ public class TripsController(AppDbContext db, TripQueryService queryService) : C
         trip.QuarryName = request.QuarryName;
         trip.Tonnes = request.Tonnes;
         trip.DieselLiters = request.DieselLiters;
+        trip.NumberOfTrips = Math.Clamp(request.NumberOfTrips, 1, 50);
         trip.DriverName = request.DriverName;
         trip.DriverPhone = request.DriverPhone;
         trip.DriverLicense = request.DriverLicense;

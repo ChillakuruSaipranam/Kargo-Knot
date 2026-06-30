@@ -18,7 +18,7 @@ public record CreateTripRequest(
 public record UpdateTripRequest(
     string Date, string Shift, string TruckNumber, string QuarryName, decimal Tonnes,
     decimal DieselLiters, string DriverName, string DriverPhone, string DriverLicense,
-    string StartTime, string EndTime);
+    string StartTime, string EndTime, int NumberOfTrips = 1);
 
 public record CreateTruckRequest(string Number);
 public record CreateQuarryRequest(string Name);

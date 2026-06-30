@@ -76,7 +76,7 @@ export class TransportService {
 
   add(trip: Omit<TransportTrip, 'id' | 'createdAt'>): Observable<TransportTrip> {
     return this.http
-      .post<ApiTrip[]>(this.apiUrl, {
+      .post<ApiTrip>(this.apiUrl, {
         date: trip.date,
         shift: trip.shift,
         truckNumber: trip.truckNumber,
@@ -90,7 +90,7 @@ export class TransportService {
         endTime: trip.endTime,
         numberOfTrips: trip.numberOfTrips,
       })
-      .pipe(map((created) => this.mapTrip(created[0])));
+      .pipe(map((created) => this.mapTrip(created)));
   }
 
   update(id: string, changes: Partial<TransportTrip>): Observable<TransportTrip> {
@@ -107,6 +107,7 @@ export class TransportService {
         driverLicense: changes.driverLicense,
         startTime: changes.startTime,
         endTime: changes.endTime,
+        numberOfTrips: changes.numberOfTrips,
       })
       .pipe(map((trip) => this.mapTrip(trip)));
   }

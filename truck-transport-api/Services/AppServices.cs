@@ -76,38 +76,41 @@ public class TripQueryService(AppDbContext db)
             .OrderBy(g => g.Key)
             .Select(g => new DateBreakdownDto(
                 g.Key.ToString("yyyy-MM-dd"),
-                g.Count(),
+                g.Sum(t => t.NumberOfTrips),
                 g.Sum(t => t.Tonnes),
-                g.Count(t => t.Shift == "Day"),
-                g.Count(t => t.Shift == "Night")))
+                g.Where(t => t.Shift == "Day").Sum(t => t.NumberOfTrips),
+                g.Where(t => t.Shift == "Night").Sum(t => t.NumberOfTrips)))
             .ToList();
 
         var groupBreakdown = new List<GroupBreakdownDto>();
         if (!string.IsNullOrWhiteSpace(filter.TruckNumber))
         {
             groupBreakdown = trips.GroupBy(t => t.QuarryName)
-                .Select(g => new GroupBreakdownDto(g.Key, g.Count(), g.Sum(t => t.Tonnes),
-                    g.Count(t => t.Shift == "Day"), g.Count(t => t.Shift == "Night"))).ToList();
+                .Select(g => new GroupBreakdownDto(g.Key, g.Sum(t => t.NumberOfTrips), g.Sum(t => t.Tonnes),
+                    g.Where(t => t.Shift == "Day").Sum(t => t.NumberOfTrips),
+                    g.Where(t => t.Shift == "Night").Sum(t => t.NumberOfTrips))).ToList();
         }
         else if (!string.IsNullOrWhiteSpace(filter.QuarryName))
         {
             groupBreakdown = trips.GroupBy(t => t.TruckNumber)
-                .Select(g => new GroupBreakdownDto(g.Key, g.Count(), g.Sum(t => t.Tonnes),
-                    g.Count(t => t.Shift == "Day"), g.Count(t => t.Shift == "Night"))).ToList();
+                .Select(g => new GroupBreakdownDto(g.Key, g.Sum(t => t.NumberOfTrips), g.Sum(t => t.Tonnes),
+                    g.Where(t => t.Shift == "Day").Sum(t => t.NumberOfTrips),
+                    g.Where(t => t.Shift == "Night").Sum(t => t.NumberOfTrips))).ToList();
         }
         else if (!string.IsNullOrWhiteSpace(filter.DriverName))
         {
             groupBreakdown = trips.GroupBy(t => t.TruckNumber)
-                .Select(g => new GroupBreakdownDto(g.Key, g.Count(), g.Sum(t => t.Tonnes),
-                    g.Count(t => t.Shift == "Day"), g.Count(t => t.Shift == "Night"))).ToList();
+                .Select(g => new GroupBreakdownDto(g.Key, g.Sum(t => t.NumberOfTrips), g.Sum(t => t.Tonnes),
+                    g.Where(t => t.Shift == "Day").Sum(t => t.NumberOfTrips),
+                    g.Where(t => t.Shift == "Night").Sum(t => t.NumberOfTrips))).ToList();
         }
 
         return new TripAnalyticsDto(
-            trips.Count,
+            trips.Sum(t => t.NumberOfTrips),
             trips.Sum(t => t.Tonnes),
             trips.Sum(t => t.DieselLiters),
-            trips.Count(t => t.Shift == "Day"),
-            trips.Count(t => t.Shift == "Night"),
+            trips.Where(t => t.Shift == "Day").Sum(t => t.NumberOfTrips),
+            trips.Where(t => t.Shift == "Night").Sum(t => t.NumberOfTrips),
             activeFilters,
             dateBreakdown,
             groupBreakdown,
