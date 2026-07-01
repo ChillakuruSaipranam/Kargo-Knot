@@ -51,7 +51,8 @@ public class TripQueryService(AppDbContext db)
     public static TripDto ToDto(TransportTrip t) => new(
         t.Id, t.Date.ToString("yyyy-MM-dd"), t.Shift, t.TruckNumber, t.QuarryName,
         t.NumberOfTrips, t.Tonnes, t.DieselLiters, t.DriverName, t.DriverPhone, t.DriverLicense,
-        t.StartTime.ToString("HH:mm"), t.EndTime.ToString("HH:mm"),
+        t.StartTime?.ToString("HH:mm") ?? string.Empty,
+        t.EndTime?.ToString("HH:mm") ?? string.Empty,
         t.CreatedBy, t.CreatedAt.ToString("o"));
 
     public TripAnalyticsDto BuildAnalytics(List<TransportTrip> trips, TripFilterQuery filter)
@@ -171,47 +172,7 @@ public static class DbSeeder
                 new AppUser { Id = Guid.NewGuid(), Email = "user@transport.com", PasswordHash = PasswordHasher.Hash("user123"), FullName = "Operations User", Role = "User" });
         }
 
-        if (!await db.Trucks.AnyAsync())
-        {
-            db.Trucks.AddRange(
-                new Truck { Id = Guid.NewGuid(), Number = "MH-12-AB-4521" },
-                new Truck { Id = Guid.NewGuid(), Number = "MH-12-CD-7788" },
-                new Truck { Id = Guid.NewGuid(), Number = "MH-14-EF-3301" });
-        }
-
-        if (!await db.Quarries.AnyAsync())
-        {
-            db.Quarries.AddRange(
-                new Quarry { Id = Guid.NewGuid(), Name = "Shivam Stone Crusher #3" },
-                new Quarry { Id = Guid.NewGuid(), Name = "Blue Ridge Quarry" },
-                new Quarry { Id = Guid.NewGuid(), Name = "Granite Hills Crusher #1" });
-        }
-
-        if (!await db.Drivers.AnyAsync())
-        {
-            db.Drivers.AddRange(
-                new Driver { Id = Guid.NewGuid(), Name = "Rajesh Kumar", Phone = "+91 98765 43210", License = "MH-2024-88912" },
-                new Driver { Id = Guid.NewGuid(), Name = "Suresh Patil", Phone = "+91 91234 56789", License = "MH-2023-44102" },
-                new Driver { Id = Guid.NewGuid(), Name = "Amit Deshmukh", Phone = "+91 99887 76655", License = "MH-2025-10234" });
-        }
-
-        if (!await db.Trips.AnyAsync())
-        {
-            db.Trips.AddRange(
-                new TransportTrip { Id = Guid.NewGuid(), Date = new DateOnly(2026, 6, 12), Shift = "Day", TruckNumber = "MH-12-AB-4521", QuarryName = "Shivam Stone Crusher #3", Tonnes = 18.5m, DieselLiters = 45m, DriverName = "Rajesh Kumar", DriverPhone = "+91 98765 43210", DriverLicense = "MH-2024-88912", StartTime = new TimeOnly(6, 30), EndTime = new TimeOnly(14, 15), NumberOfTrips = 1, CreatedBy = "admin@transport.com" },
-                new TransportTrip { Id = Guid.NewGuid(), Date = new DateOnly(2026, 6, 12), Shift = "Night", TruckNumber = "MH-12-CD-7788", QuarryName = "Blue Ridge Quarry", Tonnes = 22m, DieselLiters = 52m, DriverName = "Suresh Patil", DriverPhone = "+91 91234 56789", DriverLicense = "MH-2023-44102", StartTime = new TimeOnly(20, 0), EndTime = new TimeOnly(4, 30), NumberOfTrips = 1, CreatedBy = "user@transport.com" },
-                new TransportTrip { Id = Guid.NewGuid(), Date = new DateOnly(2026, 6, 13), Shift = "Day", TruckNumber = "MH-14-EF-3301", QuarryName = "Granite Hills Crusher #1", Tonnes = 15.75m, DieselLiters = 38m, DriverName = "Amit Deshmukh", DriverPhone = "+91 99887 76655", DriverLicense = "MH-2025-10234", StartTime = new TimeOnly(7, 0), EndTime = new TimeOnly(15, 45), NumberOfTrips = 1, CreatedBy = "user@transport.com" },
-                new TransportTrip { Id = Guid.NewGuid(), Date = new DateOnly(2026, 6, 13), Shift = "Day", TruckNumber = "MH-12-AB-4521", QuarryName = "Shivam Stone Crusher #3", Tonnes = 20m, DieselLiters = 48m, DriverName = "Rajesh Kumar", DriverPhone = "+91 98765 43210", DriverLicense = "MH-2024-88912", StartTime = new TimeOnly(7, 0), EndTime = new TimeOnly(15, 0), NumberOfTrips = 1, CreatedBy = "admin@transport.com" },
-                new TransportTrip { Id = Guid.NewGuid(), Date = new DateOnly(2026, 6, 14), Shift = "Night", TruckNumber = "MH-12-AB-4521", QuarryName = "Blue Ridge Quarry", Tonnes = 19.25m, DieselLiters = 50m, DriverName = "Suresh Patil", DriverPhone = "+91 91234 56789", DriverLicense = "MH-2023-44102", StartTime = new TimeOnly(21, 0), EndTime = new TimeOnly(5, 0), NumberOfTrips = 1, CreatedBy = "user@transport.com" });
-        }
-
-        if (!await db.Repairs.AnyAsync())
-        {
-            db.Repairs.AddRange(
-                new TruckRepair { Id = Guid.NewGuid(), Date = new DateOnly(2026, 6, 10), TruckNumber = "MH-12-AB-4521", Description = "Brake pad replacement and wheel alignment", Cost = 12500m, CreatedBy = "admin@transport.com" },
-                new TruckRepair { Id = Guid.NewGuid(), Date = new DateOnly(2026, 6, 11), TruckNumber = "MH-12-CD-7788", Description = "Engine oil change and air filter service", Cost = 4800m, CreatedBy = "user@transport.com" },
-                new TruckRepair { Id = Guid.NewGuid(), Date = new DateOnly(2026, 6, 13), TruckNumber = "MH-14-EF-3301", Description = "Tyre replacement (2 rear tyres)", Cost = 28000m, CreatedBy = "admin@transport.com" });
-        }
+        
 
         await db.SaveChangesAsync();
     }

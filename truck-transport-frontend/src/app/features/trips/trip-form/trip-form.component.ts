@@ -49,13 +49,13 @@ export class TripFormComponent implements OnInit {
     truckNumber: ['', [Validators.required, indianVehicleValidator()]],
     quarryName: ['', Validators.required],
     numberOfTrips: [1, [Validators.required, Validators.min(1), Validators.max(50)]],
-    tonnes: [0, [Validators.required, Validators.min(0.01)]],
-    dieselLiters: [0, [Validators.required, Validators.min(0)]],
+    tonnes: [0, [Validators.min(0)]],
+    dieselLiters: [0, [Validators.min(0)]],
     driverName: ['', Validators.required],
     driverPhone: ['', [Validators.required, indianPhoneValidator()]],
     driverLicense: ['', Validators.required],
-    startTime: ['', Validators.required],
-    endTime: ['', Validators.required],
+    startTime: [''],
+    endTime: [''],
   });
 
   ngOnInit(): void {

@@ -15,4 +15,10 @@ public static partial class ValidationHelper
 
     public static bool IsValidIndianVehicle(string? value) =>
         !string.IsNullOrWhiteSpace(value) && IndianVehicleRegex().IsMatch(value.Trim());
+
+    public static TimeOnly? ParseOptionalTime(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        return TimeOnly.TryParse(value, out var time) ? time : null;
+    }
 }

@@ -46,8 +46,8 @@ public class TransportTrip
     public string DriverName { get; set; } = string.Empty;
     public string DriverPhone { get; set; } = string.Empty;
     public string DriverLicense { get; set; } = string.Empty;
-    public TimeOnly StartTime { get; set; }
-    public TimeOnly EndTime { get; set; }
+    public TimeOnly? StartTime { get; set; }
+    public TimeOnly? EndTime { get; set; }
     public int NumberOfTrips { get; set; } = 1;
     public string CreatedBy { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

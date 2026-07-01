@@ -197,13 +197,13 @@ public class TripsController(AppDbContext db, TripQueryService queryService) : C
             TruckNumber = request.TruckNumber,
             QuarryName = request.QuarryName,
             NumberOfTrips = Math.Clamp(request.NumberOfTrips, 1, 50),
-            Tonnes = request.Tonnes,
-            DieselLiters = request.DieselLiters,
+            Tonnes = Math.Max(0, request.Tonnes),
+            DieselLiters = Math.Max(0, request.DieselLiters),
             DriverName = request.DriverName,
             DriverPhone = request.DriverPhone,
             DriverLicense = request.DriverLicense,
-            StartTime = TimeOnly.Parse(request.StartTime),
-            EndTime = TimeOnly.Parse(request.EndTime),
+            StartTime = ValidationHelper.ParseOptionalTime(request.StartTime),
+            EndTime = ValidationHelper.ParseOptionalTime(request.EndTime),
             CreatedBy = email,
         };
         db.Trips.Add(trip);
@@ -225,14 +225,14 @@ public class TripsController(AppDbContext db, TripQueryService queryService) : C
         trip.Shift = request.Shift;
         trip.TruckNumber = request.TruckNumber;
         trip.QuarryName = request.QuarryName;
-        trip.Tonnes = request.Tonnes;
-        trip.DieselLiters = request.DieselLiters;
+        trip.Tonnes = Math.Max(0, request.Tonnes);
+        trip.DieselLiters = Math.Max(0, request.DieselLiters);
         trip.NumberOfTrips = Math.Clamp(request.NumberOfTrips, 1, 50);
         trip.DriverName = request.DriverName;
         trip.DriverPhone = request.DriverPhone;
         trip.DriverLicense = request.DriverLicense;
-        trip.StartTime = TimeOnly.Parse(request.StartTime);
-        trip.EndTime = TimeOnly.Parse(request.EndTime);
+        trip.StartTime = ValidationHelper.ParseOptionalTime(request.StartTime);
+        trip.EndTime = ValidationHelper.ParseOptionalTime(request.EndTime);
         trip.UpdatedAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
         return Ok(TripQueryService.ToDto(trip));

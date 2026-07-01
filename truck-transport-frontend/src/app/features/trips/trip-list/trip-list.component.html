@@ -147,8 +147,8 @@
             <td>{{ trip.dieselLiters | number: '1.2-2' }}</td>
             <td>{{ trip.driverName }}</td>
             <td>{{ trip.driverPhone }}</td>
-            <td>{{ trip.startTime }}</td>
-            <td>{{ trip.endTime }}</td>
+            <td>{{ trip.startTime || '—' }}</td>
+            <td>{{ trip.endTime || '—' }}</td>
             <td class="actions">
               <a class="btn btn-text" [routerLink]="['/trips', trip.id, 'edit']">Edit</a>
               @if (auth.isAdmin()) {
@@ -182,7 +182,7 @@
           <div><dt>Diesel</dt><dd>{{ trip.dieselLiters | number: '1.2-2' }} L</dd></div>
           <div><dt>Driver</dt><dd>{{ trip.driverName }}</dd></div>
           <div><dt>Phone</dt><dd>{{ trip.driverPhone }}</dd></div>
-          <div><dt>Time</dt><dd>{{ trip.startTime }} – {{ trip.endTime }}</dd></div>
+          <div><dt>Time</dt><dd>{{ trip.startTime || '—' }} – {{ trip.endTime || '—' }}</dd></div>
         </dl>
         <div class="trip-card-actions">
           <a class="btn btn-secondary" [routerLink]="['/trips', trip.id, 'edit']">Edit</a>

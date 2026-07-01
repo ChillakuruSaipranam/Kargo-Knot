@@ -61,7 +61,7 @@
             <td>{{ trip.quarryName }}</td>
             <td>{{ trip.tonnes }}</td>
             <td>{{ trip.driverName }}</td>
-            <td>{{ trip.startTime }} – {{ trip.endTime }}</td>
+            <td>{{ trip.startTime || '—' }} – {{ trip.endTime || '—' }}</td>
           </tr>
         } @empty {
           <tr>
@@ -81,7 +81,7 @@
         </div>
         <p>{{ trip.truckNumber }} · {{ trip.quarryName }}</p>
         <p>{{ trip.tonnes | number: '1.2-2' }} t · {{ trip.driverName }}</p>
-        <p class="recent-card-time">{{ trip.startTime }} – {{ trip.endTime }}</p>
+        <p class="recent-card-time">{{ trip.startTime || '—' }} – {{ trip.endTime || '—' }}</p>
       </article>
     }     @empty {
       <p class="empty-row">No trip records available yet.</p>
