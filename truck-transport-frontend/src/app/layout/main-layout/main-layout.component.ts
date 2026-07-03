@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-main-layout',
@@ -12,6 +13,7 @@ import { AuthService } from '../../core/services/auth.service';
 export class MainLayoutComponent {
   private readonly router = inject(Router);
   readonly auth = inject(AuthService);
+  readonly logoUrl = environment.assets.logo;
   readonly currentYear = new Date().getFullYear();
   readonly navOpen = signal(false);
 

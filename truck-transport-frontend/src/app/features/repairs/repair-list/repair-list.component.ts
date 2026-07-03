@@ -23,10 +23,12 @@ export class RepairListComponent implements OnInit {
   readonly auth = inject(AuthService);
 
   readonly trucks = signal<LookupItem[]>([]);
+  readonly drivers = signal<LookupItem[]>([]);
   readonly filterForm = this.fb.nonNullable.group({
     dateFrom: [''],
     dateTo: [''],
     truckNumber: [''],
+    driverName: [''],
     minCost: [null as number | null],
     maxCost: [null as number | null],
   });
@@ -40,6 +42,9 @@ export class RepairListComponent implements OnInit {
   ngOnInit(): void {
     this.lookupService.getTrucks().subscribe({
       next: (items) => this.trucks.set([...items].sort((a, b) => a.label.localeCompare(b.label))),
+    });
+    this.lookupService.getDrivers().subscribe({
+      next: (items) => this.drivers.set([...items].sort((a, b) => a.label.localeCompare(b.label))),
     });
     this.loadRepairs();
   }
@@ -92,6 +97,7 @@ export class RepairListComponent implements OnInit {
       filter.dateFrom ||
       filter.dateTo ||
       filter.truckNumber ||
+      filter.driverName ||
       filter.minCost !== null ||
       filter.maxCost !== null
     );

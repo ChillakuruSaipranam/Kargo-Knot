@@ -46,14 +46,14 @@ public record LoginLogDto(
 
 public record RepairDto(
     Guid Id, string Date, string TruckNumber, string Description, decimal Cost,
-    string CreatedBy, string CreatedAt);
+    string? DriverName, string CreatedBy, string CreatedAt);
 
-public record CreateRepairRequest(string Date, string TruckNumber, string Description, decimal Cost);
+public record CreateRepairRequest(string Date, string TruckNumber, string Description, decimal Cost, string? DriverName = null);
 
-public record UpdateRepairRequest(string Date, string TruckNumber, string Description, decimal Cost);
+public record UpdateRepairRequest(string Date, string TruckNumber, string Description, decimal Cost, string? DriverName = null);
 
 public record RepairSummaryDto(int TotalRepairs, decimal TotalCost);
 
 public record RepairFilterQuery(
-    string? DateFrom, string? DateTo, string? TruckNumber,
+    string? DateFrom, string? DateTo, string? TruckNumber, string? DriverName,
     decimal? MinCost, decimal? MaxCost);

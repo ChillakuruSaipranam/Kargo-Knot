@@ -73,6 +73,7 @@ public class TruckRepair
     public string TruckNumber { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public decimal Cost { get; set; }
+    public string? DriverName { get; set; }
     public string CreatedBy { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }

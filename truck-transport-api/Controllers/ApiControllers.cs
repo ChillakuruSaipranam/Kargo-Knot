@@ -315,6 +315,7 @@ public class RepairsController(AppDbContext db, RepairQueryService queryService)
             TruckNumber = request.TruckNumber.Trim(),
             Description = request.Description.Trim(),
             Cost = request.Cost,
+            DriverName = string.IsNullOrWhiteSpace(request.DriverName) ? null : request.DriverName.Trim(),
             CreatedBy = email,
         };
         db.Repairs.Add(repair);
@@ -336,6 +337,7 @@ public class RepairsController(AppDbContext db, RepairQueryService queryService)
         repair.TruckNumber = request.TruckNumber.Trim();
         repair.Description = request.Description.Trim();
         repair.Cost = request.Cost;
+        repair.DriverName = string.IsNullOrWhiteSpace(request.DriverName) ? null : request.DriverName.Trim();
         repair.UpdatedAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
         return Ok(RepairQueryService.ToDto(repair));

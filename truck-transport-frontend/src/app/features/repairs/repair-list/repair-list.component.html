@@ -11,7 +11,7 @@
   <header class="panel-header compact">
     <div>
       <h3>Filter Repairs</h3>
-      <p>Refine results by date, truck, or cost range.</p>
+      <p>Refine results by date, truck, driver, or cost range.</p>
     </div>
   </header>
 
@@ -30,6 +30,15 @@
         <option value="">All trucks</option>
         @for (truck of trucks(); track truck.id) {
           <option [value]="truck.label">{{ truck.label }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      <span>Driver</span>
+      <select formControlName="driverName">
+        <option value="">All drivers</option>
+        @for (driver of drivers(); track driver.id) {
+          <option [value]="driver.label">{{ driver.label }}</option>
         }
       </select>
     </label>
@@ -80,6 +89,7 @@
         <tr>
           <th>Date</th>
           <th>Truck No.</th>
+          <th>Driver</th>
           <th>Description</th>
           <th>Cost (₹)</th>
           <th>Recorded By</th>
@@ -91,6 +101,7 @@
           <tr>
             <td>{{ repair.date }}</td>
             <td>{{ repair.truckNumber }}</td>
+            <td>{{ repair.driverName || '—' }}</td>
             <td>{{ repair.description }}</td>
             <td>{{ repair.cost | currency: 'INR':'symbol':'1.2-2' }}</td>
             <td>{{ repair.createdBy }}</td>
@@ -103,7 +114,7 @@
           </tr>
         } @empty {
           <tr>
-            <td colspan="6" class="empty-row">No repair records match your filter criteria.</td>
+            <td colspan="7" class="empty-row">No repair records match your filter criteria.</td>
           </tr>
         }
       </tbody>
@@ -121,7 +132,7 @@
           <span class="repair-cost">{{ repair.cost | currency: 'INR':'symbol':'1.0-0' }}</span>
         </header>
         <p class="repair-description">{{ repair.description }}</p>
-        <p class="repair-meta">Recorded by {{ repair.createdBy }}</p>
+        <p class="repair-meta">Driver: {{ repair.driverName || '—' }} · Recorded by {{ repair.createdBy }}</p>
         <div class="repair-card-actions">
           <a class="btn btn-secondary" [routerLink]="['/repairs', repair.id, 'edit']">Edit</a>
           @if (auth.isAdmin()) {

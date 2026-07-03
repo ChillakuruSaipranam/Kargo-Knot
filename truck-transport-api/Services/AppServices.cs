@@ -190,6 +190,8 @@ public class RepairQueryService(AppDbContext db)
             query = query.Where(r => r.Date <= to);
         if (!string.IsNullOrWhiteSpace(filter.TruckNumber))
             query = query.Where(r => r.TruckNumber == filter.TruckNumber);
+        if (!string.IsNullOrWhiteSpace(filter.DriverName))
+            query = query.Where(r => r.DriverName == filter.DriverName);
         if (filter.MinCost.HasValue)
             query = query.Where(r => r.Cost >= filter.MinCost.Value);
         if (filter.MaxCost.HasValue)
@@ -200,5 +202,5 @@ public class RepairQueryService(AppDbContext db)
 
     public static RepairDto ToDto(TruckRepair r) => new(
         r.Id, r.Date.ToString("yyyy-MM-dd"), r.TruckNumber, r.Description, r.Cost,
-        r.CreatedBy, r.CreatedAt.ToString("o"));
+        r.DriverName, r.CreatedBy, r.CreatedAt.ToString("o"));
 }

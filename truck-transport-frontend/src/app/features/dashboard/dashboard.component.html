@@ -132,6 +132,7 @@
         <tr>
           <th>Date</th>
           <th>Truck No.</th>
+          <th>Driver</th>
           <th>Description</th>
           <th>Cost (₹)</th>
         </tr>
@@ -141,12 +142,13 @@
           <tr>
             <td>{{ repair.date }}</td>
             <td>{{ repair.truckNumber }}</td>
+            <td>{{ repair.driverName || '—' }}</td>
             <td>{{ repair.description }}</td>
             <td>{{ repair.cost | currency: 'INR':'symbol':'1.2-2' }}</td>
           </tr>
         } @empty {
           <tr>
-            <td colspan="4" class="empty-row">No repair records available yet.</td>
+            <td colspan="5" class="empty-row">No repair records available yet.</td>
           </tr>
         }
       </tbody>
@@ -160,7 +162,7 @@
           <strong>{{ repair.date }}</strong>
           <span class="repair-cost-badge">{{ repair.cost | currency: 'INR':'symbol':'1.0-0' }}</span>
         </div>
-        <p>{{ repair.truckNumber }}</p>
+        <p>{{ repair.truckNumber }} · {{ repair.driverName || 'No driver' }}</p>
         <p>{{ repair.description }}</p>
       </article>
     } @empty {

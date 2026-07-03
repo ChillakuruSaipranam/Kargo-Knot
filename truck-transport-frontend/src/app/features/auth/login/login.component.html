@@ -1,17 +1,33 @@
 <div class="login-page">
+  <div
+    class="login-backdrop"
+    [style.background-image]="'url(' + backgroundUrl + ')'"
+    aria-hidden="true"
+  ></div>
+
   <section class="login-hero">
     <div class="hero-content">
+      <img [src]="logoUrl" alt="DRR Transport logo" class="brand-logo" width="120" height="120" />
+      <p class="hero-eyebrow">Fleet Operations Portal</p>
       <h1>DRR Transport</h1>
-      <p class="subtitle">A comprehensive transport management system for truck operations.</p>
+      <p class="hero-copy">Duvvuru Ramchandra Reddy - quarry and crusher logistics management for your fleet.</p>
       <ul>
         <li>Trip registration with driver and load details</li>
         <li>Day and night shift tracking</li>
-        <li>Advanced filtering and operational reporting</li>
+        <li>Repair records, filtering, and operational reporting</li>
       </ul>
     </div>
   </section>
 
   <section class="login-card">
+    <div class="login-card-brand mobile-brand">
+      <img [src]="logoUrl" alt="" class="brand-logo-sm" width="56" height="56" />
+      <div>
+        <strong>DRR Transport</strong>
+        <span>Operations Portal</span>
+      </div>
+    </div>
+
     <div class="auth-tabs">
       <button type="button" class="auth-tab" [class.active]="mode() === 'login'" (click)="setMode('login')">
         Sign In
@@ -30,7 +46,7 @@
       <form [formGroup]="loginForm" (ngSubmit)="submitLogin()">
         <label>
           <span>Email Address</span>
-          <input type="email" formControlName="email" placeholder="name@transport.com" />
+          <input type="email" formControlName="email" placeholder="name@transport.com" autocomplete="username" />
           @if (loginForm.controls.email.touched && loginForm.controls.email.invalid) {
             <small>Enter a valid email address.</small>
           }
@@ -38,7 +54,7 @@
 
         <label>
           <span>Password</span>
-          <input type="password" formControlName="password" placeholder="Enter password" />
+          <input type="password" formControlName="password" placeholder="Enter password" autocomplete="current-password" />
           @if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
             <small>Password must be at least 6 characters.</small>
           }
@@ -67,7 +83,7 @@
       <form [formGroup]="registerForm" (ngSubmit)="submitRegister()">
         <label>
           <span>Full Name</span>
-          <input type="text" formControlName="fullName" placeholder="Your full name" />
+          <input type="text" formControlName="fullName" placeholder="Your full name" autocomplete="name" />
           @if (registerForm.controls.fullName.touched && registerForm.controls.fullName.invalid) {
             <small>Full name is required (min 3 characters).</small>
           }
@@ -75,7 +91,7 @@
 
         <label>
           <span>Email Address</span>
-          <input type="email" formControlName="email" placeholder="name@transport.com" />
+          <input type="email" formControlName="email" placeholder="name@transport.com" autocomplete="email" />
           @if (registerForm.controls.email.touched && registerForm.controls.email.invalid) {
             <small>Enter a valid email address.</small>
           }
@@ -83,7 +99,7 @@
 
         <label>
           <span>Password</span>
-          <input type="password" formControlName="password" placeholder="At least 6 characters" />
+          <input type="password" formControlName="password" placeholder="At least 6 characters" autocomplete="new-password" />
           @if (registerForm.controls.password.touched && registerForm.controls.password.invalid) {
             <small>Password must be at least 6 characters.</small>
           }

@@ -41,6 +41,12 @@ textarea {
   color: var(--danger);
 }
 
+.optional-label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
 .form-actions {
   display: flex;
   gap: 0.75rem;

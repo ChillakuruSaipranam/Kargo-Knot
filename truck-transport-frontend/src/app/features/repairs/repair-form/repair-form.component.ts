@@ -26,11 +26,13 @@ export class RepairFormComponent implements OnInit {
   readonly loadError = signal('');
   readonly lookupError = signal('');
   readonly trucks = signal<LookupItem[]>([]);
+  readonly drivers = signal<LookupItem[]>([]);
   readonly newTruckNumber = signal('');
 
   readonly form = this.fb.nonNullable.group({
     date: ['', Validators.required],
     truckNumber: ['', [Validators.required, indianVehicleValidator()]],
+    driverName: [''],
     description: ['', [Validators.required, Validators.minLength(3)]],
     cost: [0, [Validators.required, Validators.min(0)]],
   });
@@ -47,7 +49,10 @@ export class RepairFormComponent implements OnInit {
             this.router.navigate(['/repairs']);
             return;
           }
-          this.form.patchValue(repair);
+          this.form.patchValue({
+            ...repair,
+            driverName: repair.driverName ?? '',
+          });
         },
         error: () => this.loadError.set('Unable to load repair record.'),
       });
@@ -110,6 +115,10 @@ export class RepairFormComponent implements OnInit {
     this.lookupService.getTrucks().subscribe({
       next: (items) => this.trucks.set(this.sortByLabel(items)),
       error: () => this.lookupError.set('Unable to load truck numbers.'),
+    });
+    this.lookupService.getDrivers().subscribe({
+      next: (items) => this.drivers.set(this.sortByLabel(items)),
+      error: () => this.lookupError.set('Unable to load drivers.'),
     });
   }
 

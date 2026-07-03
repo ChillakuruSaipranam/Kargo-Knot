@@ -10,6 +10,7 @@ interface ApiRepair {
   truckNumber: string;
   description: string;
   cost: number;
+  driverName: string | null;
   createdBy: string;
   createdAt: string;
 }
@@ -53,6 +54,7 @@ export class RepairService {
         truckNumber: repair.truckNumber,
         description: repair.description,
         cost: repair.cost,
+        driverName: repair.driverName || null,
       })
       .pipe(map((created) => this.mapRepair(created)));
   }
@@ -64,6 +66,7 @@ export class RepairService {
         truckNumber: changes.truckNumber,
         description: changes.description,
         cost: changes.cost,
+        driverName: changes.driverName || null,
       })
       .pipe(map((repair) => this.mapRepair(repair)));
   }
@@ -84,6 +87,7 @@ export class RepairService {
     if (filter.dateFrom) params = params.set('dateFrom', filter.dateFrom);
     if (filter.dateTo) params = params.set('dateTo', filter.dateTo);
     if (filter.truckNumber) params = params.set('truckNumber', filter.truckNumber);
+    if (filter.driverName) params = params.set('driverName', filter.driverName);
     if (filter.minCost !== null) params = params.set('minCost', filter.minCost);
     if (filter.maxCost !== null) params = params.set('maxCost', filter.maxCost);
     return params;
@@ -96,6 +100,7 @@ export class RepairService {
       truckNumber: repair.truckNumber,
       description: repair.description,
       cost: repair.cost,
+      driverName: repair.driverName ?? null,
       createdBy: repair.createdBy,
       createdAt: repair.createdAt,
     };

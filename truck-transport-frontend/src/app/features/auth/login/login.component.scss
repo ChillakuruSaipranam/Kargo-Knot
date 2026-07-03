@@ -1,18 +1,52 @@
 .login-page {
+  position: relative;
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  background: var(--surface-100);
+  grid-template-columns: 1.15fr 0.85fr;
+  overflow: hidden;
+}
+
+.login-backdrop {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
+.login-backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(115deg, rgba(15, 39, 68, 0.92) 0%, rgba(15, 39, 68, 0.78) 42%, rgba(26, 54, 93, 0.55) 100%),
+    radial-gradient(circle at 85% 15%, rgba(201, 162, 39, 0.22), transparent 40%);
+}
+
+.login-hero,
+.login-card {
+  position: relative;
+  z-index: 1;
 }
 
 .login-hero {
-  background:
-    linear-gradient(160deg, rgba(15, 39, 68, 0.94), rgba(26, 54, 93, 0.88)),
-    radial-gradient(circle at top right, rgba(201, 162, 39, 0.18), transparent 45%);
-  color: #fff;
-  padding: 4rem 3rem;
   display: flex;
   align-items: center;
+  padding: 3.5rem 3rem;
+  color: #fff;
+}
+
+.hero-content {
+  max-width: 34rem;
+}
+
+.brand-logo {
+  display: block;
+  width: 7.5rem;
+  height: auto;
+  margin-bottom: 1.25rem;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.35));
 }
 
 .hero-eyebrow {
@@ -24,31 +58,63 @@
 }
 
 .hero-content h1 {
-  margin: 0 0 1rem;
-  font-size: clamp(2rem, 4vw, 2.8rem);
-  line-height: 1.15;
+  margin: 0 0 0.85rem;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  line-height: 1.12;
+  font-weight: 700;
 }
 
 .hero-copy {
-  max-width: 34rem;
-  color: rgba(255, 255, 255, 0.82);
-  line-height: 1.6;
+  margin: 0;
+  max-width: 32rem;
+  color: rgba(255, 255, 255, 0.86);
+  line-height: 1.65;
+  font-size: 1.02rem;
 }
 
 .hero-content ul {
-  margin: 1.5rem 0 0;
+  margin: 1.75rem 0 0;
   padding-left: 1.2rem;
-  color: rgba(255, 255, 255, 0.88);
-  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.85;
 }
 
 .login-card {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 3rem;
-  background: #fff;
-  box-shadow: var(--shadow-lg);
+  padding: 2.75rem 3rem;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(12px);
+  box-shadow: -12px 0 48px rgba(15, 39, 68, 0.18);
+  border-left: 1px solid rgba(255, 255, 255, 0.65);
+}
+
+.mobile-brand {
+  display: none;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.mobile-brand strong {
+  display: block;
+  color: var(--navy-800);
+  font-size: 1.05rem;
+}
+
+.mobile-brand span {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.brand-logo-sm {
+  width: 3.5rem;
+  height: auto;
+  flex-shrink: 0;
 }
 
 .login-card header h2 {
@@ -76,6 +142,7 @@
   padding: 0.65rem 1rem;
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .auth-tab.active {
@@ -134,28 +201,23 @@ label small {
   }
 
   .login-hero {
-    padding: 2rem 1.25rem;
+    display: none;
   }
 
   .login-card {
-    padding: 1.5rem 1.25rem 2.5rem;
+    min-height: 100vh;
+    padding: 2rem 1.25rem 2.5rem;
+    border-left: none;
+    box-shadow: none;
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  .mobile-brand {
+    display: flex;
   }
 }
 
 @media (max-width: 480px) {
-  .login-hero {
-    padding: 1.75rem 1rem;
-  }
-
-  .hero-content h1 {
-    font-size: 1.65rem;
-  }
-
-  .hero-content ul {
-    font-size: 0.92rem;
-    padding-left: 1rem;
-  }
-
   .login-card {
     padding: 1.25rem 1rem 2rem;
   }

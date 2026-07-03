@@ -4,6 +4,7 @@ export interface TruckRepair {
   truckNumber: string;
   description: string;
   cost: number;
+  driverName: string | null;
   createdBy: string;
   createdAt: string;
 }
@@ -12,6 +13,7 @@ export interface RepairFilter {
   dateFrom: string;
   dateTo: string;
   truckNumber: string;
+  driverName: string;
   minCost: number | null;
   maxCost: number | null;
 }
@@ -25,6 +27,7 @@ export const emptyRepairFilter = (): RepairFilter => ({
   dateFrom: '',
   dateTo: '',
   truckNumber: '',
+  driverName: '',
   minCost: null,
   maxCost: null,
 });
