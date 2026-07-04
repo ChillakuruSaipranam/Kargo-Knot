@@ -14,6 +14,7 @@ interface ApiTrip {
   tonnes: number;
   dieselLiters: number;
   driverName: string;
+  additionalDriverName: string | null;
   driverPhone: string;
   driverLicense: string;
   startTime: string;
@@ -84,6 +85,7 @@ export class TransportService {
         tonnes: trip.tonnes,
         dieselLiters: trip.dieselLiters,
         driverName: trip.driverName,
+        additionalDriverName: trip.additionalDriverName,
         driverPhone: trip.driverPhone,
         driverLicense: trip.driverLicense,
         startTime: trip.startTime,
@@ -103,6 +105,7 @@ export class TransportService {
         tonnes: changes.tonnes,
         dieselLiters: changes.dieselLiters,
         driverName: changes.driverName,
+        additionalDriverName: changes.additionalDriverName,
         driverPhone: changes.driverPhone,
         driverLicense: changes.driverLicense,
         startTime: changes.startTime,
@@ -157,6 +160,7 @@ export class TransportService {
       tonnes: trip.tonnes,
       dieselLiters: trip.dieselLiters,
       driverName: trip.driverName,
+      additionalDriverName: trip.additionalDriverName ?? '',
       driverPhone: trip.driverPhone,
       driverLicense: trip.driverLicense,
       startTime: trip.startTime,

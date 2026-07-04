@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LookupService } from '../../../core/services/lookup.service';
 import { RepairService } from '../../../core/services/repair.service';
 import { LookupItem } from '../../../core/models/lookup.model';
-import { indianVehicleValidator, isValidIndianVehicle } from '../../../core/validators/india.validators';
+import { indianVehicleValidator } from '../../../core/validators/india.validators';
 
 @Component({
   selector: 'app-repair-form',
@@ -27,7 +27,6 @@ export class RepairFormComponent implements OnInit {
   readonly lookupError = signal('');
   readonly trucks = signal<LookupItem[]>([]);
   readonly drivers = signal<LookupItem[]>([]);
-  readonly newTruckNumber = signal('');
 
   readonly form = this.fb.nonNullable.group({
     date: ['', Validators.required],
@@ -59,28 +58,6 @@ export class RepairFormComponent implements OnInit {
     } else {
       this.form.patchValue({ date: new Date().toISOString().slice(0, 10) });
     }
-  }
-
-  addTruck(): void {
-    const number = this.newTruckNumber().trim();
-    if (!number) {
-      this.lookupError.set('Truck number is required.');
-      return;
-    }
-    if (!isValidIndianVehicle(number)) {
-      this.lookupError.set('Enter a valid Indian vehicle number (e.g. MH-12-AB-4521).');
-      return;
-    }
-
-    this.lookupService.createTruck(number).subscribe({
-      next: (item) => {
-        this.trucks.update((items) => this.sortByLabel([...items, item]));
-        this.form.patchValue({ truckNumber: item.label });
-        this.newTruckNumber.set('');
-        this.lookupError.set('');
-      },
-      error: () => this.lookupError.set('Unable to add truck number.'),
-    });
   }
 
   submit(): void {

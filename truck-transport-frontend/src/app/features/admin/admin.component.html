@@ -1,51 +1,157 @@
 <section class="page-header">
   <div>
-    <p class="eyebrow">System Administration</p>
-    <h2>Administration</h2>
-    <p class="subtitle">Manage users, roles, and system configuration. Backend integration required.</p>
+    <p class="eyebrow">Administration</p>
+    <h2>Admin Fleet Master Data</h2>
+    <p class="subtitle">Only admin users can add, edit, or remove trucks, quarries, and drivers used in trip and repair records.</p>
   </div>
 </section>
 
-<section class="panel">
+<section class="panel admin-management">
   <header class="panel-header compact">
     <div>
-      <h3>User Access Control</h3>
-      <p>Planned for .NET backend with role-based authorization.</p>
+      <h3>Master Data Management</h3>
+      <p>Manage the vehicle, quarry, and driver master records that power the transport system.</p>
     </div>
   </header>
 
-  <div class="admin-grid">
+  <div class="admin-stack">
     <article class="admin-card">
-      <h4>Administrator Role</h4>
-      <ul>
-        <li>Create, edit, and delete trip records</li>
-        <li>Manage user accounts</li>
-        <li>View all operational reports</li>
-        <li>Configure quarry and truck master data</li>
-      </ul>
+      <h4>Truck Master</h4>
+        <form [formGroup]="truckForm" (ngSubmit)="saveTruck()" class="admin-form">
+        <label>
+          <span>Truck number</span>
+          <input type="text" formControlName="number" placeholder="MH-12-AB-4521" />
+          <span class="field-error" *ngIf="truckForm.controls.number.touched && truckForm.controls.number.invalid">
+            {{ truckForm.controls.number.hasError('required') ? 'Truck number is required.' : 'Enter a valid Indian vehicle number.' }}
+          </span>
+        </label>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">{{ truckForm.controls.id.value ? 'Update Truck' : 'Add Truck' }}</button>
+          <button class="btn btn-secondary" type="button" (click)="resetTruckForm()">Cancel</button>
+        </div>
+        <p class="message success" *ngIf="truckMessage()">{{ truckMessage() }}</p>
+        <p class="message error" *ngIf="truckError()">{{ truckError() }}</p>
+        </form>
+        <div class="table-wrap admin-list">
+        <table>
+          <thead>
+            <tr>
+              <th>Truck Number</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let truck of trucks()">
+              <td><div class="cell" data-label="Truck Number">{{ truck.label }}</div></td>
+              <td class="actions"><div class="cell" data-label="Actions">
+                <button class="btn btn-text" type="button" (click)="editTruck(truck)">Edit</button>
+                <button class="btn btn-text danger" type="button" (click)="deleteTruck(truck.id)">Delete</button>
+              </div></td>
+            </tr>
+            <tr *ngIf="!trucks().length">
+              <td colspan="2" class="empty-row">No trucks configured yet.</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
     </article>
 
     <article class="admin-card">
-      <h4>Standard User Role</h4>
-      <ul>
-        <li>Create and edit own trip records</li>
-        <li>Search and filter trip data</li>
-        <li>View dashboard summaries</li>
-        <li>No delete or user management access</li>
-      </ul>
+      <h4>Driver Master</h4>
+        <form [formGroup]="driverForm" (ngSubmit)="saveDriver()" class="admin-form">
+        <label>
+          <span>Driver name</span>
+          <input type="text" formControlName="name" placeholder="Driver name" />
+          <span class="field-error" *ngIf="driverForm.controls.name.touched && driverForm.controls.name.invalid">Driver name is required.</span>
+        </label>
+        <label>
+          <span>Phone number</span>
+          <input type="tel" formControlName="phone" placeholder="+91 98765 43210" />
+          <span class="field-error" *ngIf="driverForm.controls.phone.touched && driverForm.controls.phone.invalid">
+            {{ driverForm.controls.phone.hasError('required') ? 'Driver phone is required.' : 'Enter a valid Indian mobile number.' }}
+          </span>
+        </label>
+        <label>
+          <span>License number</span>
+          <input type="text" formControlName="license" placeholder="License ID" />
+          <span class="field-error" *ngIf="driverForm.controls.license.touched && driverForm.controls.license.invalid">License number is required.</span>
+        </label>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">{{ driverForm.controls.id.value ? 'Update Driver' : 'Add Driver' }}</button>
+          <button class="btn btn-secondary" type="button" (click)="resetDriverForm()">Cancel</button>
+        </div>
+        <p class="message success" *ngIf="driverMessage()">{{ driverMessage() }}</p>
+        <p class="message error" *ngIf="driverError()">{{ driverError() }}</p>
+        </form>
+        <div class="table-wrap admin-list">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>License</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let driver of drivers()">
+              <td><div class="cell" data-label="Name">{{ driver.label }}</div></td>
+              <td><div class="cell" data-label="Phone">{{ driver.phone || '—' }}</div></td>
+              <td><div class="cell" data-label="License">{{ driver.license || '—' }}</div></td>
+              <td class="actions"><div class="cell" data-label="Actions">
+                <button class="btn btn-text" type="button" (click)="editDriver(driver)">Edit</button>
+                <button class="btn btn-text danger" type="button" (click)="deleteDriver(driver.id)">Delete</button>
+              </div></td>
+            </tr>
+            <tr *ngIf="!drivers().length">
+              <td colspan="4" class="empty-row">No drivers configured yet.</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
     </article>
 
     <article class="admin-card">
-      <h4>Backend Endpoints (Planned)</h4>
-      <ul>
-        <li><code>POST /api/auth/login</code></li>
-        <li><code>GET /api/users</code> (Admin)</li>
-        <li><code>POST /api/users</code> (Admin)</li>
-        <li><code>GET /api/trips?filters...</code></li>
-        <li><code>POST /api/trips</code></li>
-        <li><code>PUT /api/trips/:id</code></li>
-        <li><code>DELETE /api/trips/:id</code> (Admin)</li>
-      </ul>
+      <h4>Quarry / Crusher Master</h4>
+        <form [formGroup]="quarryForm" (ngSubmit)="saveQuarry()" class="admin-form">
+        <label>
+          <span>Quarry / crusher name</span>
+          <input type="text" formControlName="name" placeholder="Example Quarry / Crusher" />
+          <span class="field-error" *ngIf="quarryForm.controls.name.touched && quarryForm.controls.name.invalid">
+            Quarry name is required.
+          </span>
+        </label>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">{{ quarryForm.controls.id.value ? 'Update Quarry' : 'Add Quarry' }}</button>
+          <button class="btn btn-secondary" type="button" (click)="resetQuarryForm()">Cancel</button>
+        </div>
+        <p class="message success" *ngIf="quarryMessage()">{{ quarryMessage() }}</p>
+        <p class="message error" *ngIf="quarryError()">{{ quarryError() }}</p>
+        </form>
+        <div class="table-wrap admin-list">
+        <table>
+          <thead>
+            <tr>
+              <th>Quarry / Crusher</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let quarry of quarries()">
+              <td><div class="cell" data-label="Quarry / Crusher">{{ quarry.label }}</div></td>
+              <td class="actions"><div class="cell" data-label="Actions">
+                <button class="btn btn-text" type="button" (click)="editQuarry(quarry)">Edit</button>
+                <button class="btn btn-text danger" type="button" (click)="deleteQuarry(quarry.id)">Delete</button>
+              </div></td>
+            </tr>
+            <tr *ngIf="!quarries().length">
+              <td colspan="2" class="empty-row">No quarry entries configured yet.</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
     </article>
   </div>
+
+  <p class="error-banner" *ngIf="loadError()">{{ loadError() }}</p>
 </section>

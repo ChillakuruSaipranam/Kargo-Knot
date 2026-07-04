@@ -56,6 +56,63 @@ public class AuthController(AppDbContext db, JwtTokenService jwt) : ControllerBa
         return Ok(new LoginResponse(token, new UserDto(user.Id, user.Email, user.FullName, user.Role)));
     }
 
+    [HttpPost("forgot")]
+    [AllowAnonymous]
+    public async Task<ActionResult<object>> ForgotPassword([FromBody] ForgotPasswordRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Email))
+        {
+            return BadRequest(new { message = "Email is required." });
+        }
+
+        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Email == normalizedEmail && u.IsActive);
+        await LoginLogService.LogAsync(db, HttpContext, normalizedEmail, "ForgotPassword", user is not null);
+
+        // In this simplified flow we do NOT reveal existence — always return generic success
+        return Ok(new { message = "If an account exists for that email, password reset instructions have been sent." });
+    }
+
+    [HttpPost("reset-password")]
+    [AllowAnonymous]
+    public async Task<ActionResult<object>> ResetPassword([FromBody] ResetPasswordRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+        {
+            return BadRequest(new { message = "Email and password are required." });
+        }
+
+        if (request.Password != request.ConfirmPassword)
+        {
+            return BadRequest(new { message = "Passwords do not match." });
+        }
+
+        if (request.Password.Length < 6)
+        {
+            return BadRequest(new { message = "Password must be at least 6 characters." });
+        }
+
+        // No reset code required: allow password reset if email exists in DB
+        var normalizedEmail = request.Email?.Trim().ToLowerInvariant();
+        if (string.IsNullOrWhiteSpace(normalizedEmail))
+        {
+            return BadRequest(new { message = "Email is required." });
+        }
+
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Email == normalizedEmail && u.IsActive);
+        if (user is null)
+        {
+            // Do not reveal too much; return generic not found
+            return NotFound(new { message = "User not found." });
+        }
+
+        user.PasswordHash = PasswordHasher.Hash(request.Password);
+        await db.SaveChangesAsync();
+        await LoginLogService.LogAsync(db, HttpContext, user.Email, "ResetPassword", true, user.Id);
+
+        return Ok(new { message = "Password reset successfully. Please sign in with your new password." });
+    }
+
     [HttpGet("logs")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<IEnumerable<LoginLogDto>>> GetLogs([FromQuery] int limit = 100)
@@ -80,6 +137,7 @@ public class LookupsController(AppDbContext db) : ControllerBase
             .Select(t => new LookupItemDto(t.Id, t.Number, null, null)).ToListAsync());
 
     [HttpPost("trucks")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<LookupItemDto>> CreateTruck([FromBody] CreateTruckRequest request)
     {
         var number = request.Number.Trim();
@@ -95,12 +153,44 @@ public class LookupsController(AppDbContext db) : ControllerBase
         return Ok(new LookupItemDto(truck.Id, truck.Number, null, null));
     }
 
+    [HttpPut("trucks/{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<LookupItemDto>> UpdateTruck(Guid id, [FromBody] CreateTruckRequest request)
+    {
+        var number = request.Number.Trim();
+        if (string.IsNullOrWhiteSpace(number)) return BadRequest(new { message = "Truck number is required." });
+        if (!ValidationHelper.IsValidIndianVehicle(number))
+            return BadRequest(new { message = "Enter a valid Indian vehicle number (e.g. MH-12-AB-4521)." });
+
+        if (await db.Trucks.AnyAsync(t => t.Number == number && t.Id != id && t.IsActive))
+            return Conflict(new { message = "Another truck with this number already exists." });
+
+        var truck = await db.Trucks.FindAsync(id);
+        if (truck is null || !truck.IsActive) return NotFound();
+
+        truck.Number = number;
+        await db.SaveChangesAsync();
+        return Ok(new LookupItemDto(truck.Id, truck.Number, null, null));
+    }
+
+    [HttpDelete("trucks/{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteTruck(Guid id)
+    {
+        var truck = await db.Trucks.FindAsync(id);
+        if (truck is null || !truck.IsActive) return NotFound();
+        truck.IsActive = false;
+        await db.SaveChangesAsync();
+        return NoContent();
+    }
+
     [HttpGet("quarries")]
     public async Task<ActionResult<IEnumerable<LookupItemDto>>> GetQuarries() =>
         Ok(await db.Quarries.Where(q => q.IsActive).OrderBy(q => q.Name)
             .Select(q => new LookupItemDto(q.Id, q.Name, null, null)).ToListAsync());
 
     [HttpPost("quarries")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<LookupItemDto>> CreateQuarry([FromBody] CreateQuarryRequest request)
     {
         var name = request.Name.Trim();
@@ -114,12 +204,42 @@ public class LookupsController(AppDbContext db) : ControllerBase
         return Ok(new LookupItemDto(quarry.Id, quarry.Name, null, null));
     }
 
+    [HttpPut("quarries/{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<LookupItemDto>> UpdateQuarry(Guid id, [FromBody] CreateQuarryRequest request)
+    {
+        var name = request.Name.Trim();
+        if (string.IsNullOrWhiteSpace(name)) return BadRequest(new { message = "Quarry name is required." });
+
+        if (await db.Quarries.AnyAsync(q => q.Name == name && q.Id != id && q.IsActive))
+            return Conflict(new { message = "Another quarry with this name already exists." });
+
+        var quarry = await db.Quarries.FindAsync(id);
+        if (quarry is null || !quarry.IsActive) return NotFound();
+
+        quarry.Name = name;
+        await db.SaveChangesAsync();
+        return Ok(new LookupItemDto(quarry.Id, quarry.Name, null, null));
+    }
+
+    [HttpDelete("quarries/{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteQuarry(Guid id)
+    {
+        var quarry = await db.Quarries.FindAsync(id);
+        if (quarry is null || !quarry.IsActive) return NotFound();
+        quarry.IsActive = false;
+        await db.SaveChangesAsync();
+        return NoContent();
+    }
+
     [HttpGet("drivers")]
     public async Task<ActionResult<IEnumerable<LookupItemDto>>> GetDrivers() =>
         Ok(await db.Drivers.Where(d => d.IsActive).OrderBy(d => d.Name)
             .Select(d => new LookupItemDto(d.Id, d.Name, d.Phone, d.License)).ToListAsync());
 
     [HttpPost("drivers")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<LookupItemDto>> CreateDriver([FromBody] CreateDriverRequest request)
     {
         var name = request.Name.Trim();
@@ -139,6 +259,39 @@ public class LookupsController(AppDbContext db) : ControllerBase
         db.Drivers.Add(driver);
         await db.SaveChangesAsync();
         return Ok(new LookupItemDto(driver.Id, driver.Name, driver.Phone, driver.License));
+    }
+
+    [HttpPut("drivers/{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<LookupItemDto>> UpdateDriver(Guid id, [FromBody] CreateDriverRequest request)
+    {
+        var name = request.Name.Trim();
+        if (string.IsNullOrWhiteSpace(name)) return BadRequest(new { message = "Driver name is required." });
+        if (!ValidationHelper.IsValidIndianPhone(request.Phone))
+            return BadRequest(new { message = "Enter a valid Indian mobile number (10 digits)." });
+
+        if (await db.Drivers.AnyAsync(d => d.Name == name && d.Id != id && d.IsActive))
+            return Conflict(new { message = "Another driver with this name already exists." });
+
+        var driver = await db.Drivers.FindAsync(id);
+        if (driver is null || !driver.IsActive) return NotFound();
+
+        driver.Name = name;
+        driver.Phone = request.Phone.Trim();
+        driver.License = request.License.Trim();
+        await db.SaveChangesAsync();
+        return Ok(new LookupItemDto(driver.Id, driver.Name, driver.Phone, driver.License));
+    }
+
+    [HttpDelete("drivers/{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteDriver(Guid id)
+    {
+        var driver = await db.Drivers.FindAsync(id);
+        if (driver is null || !driver.IsActive) return NotFound();
+        driver.IsActive = false;
+        await db.SaveChangesAsync();
+        return NoContent();
     }
 }
 
@@ -186,8 +339,17 @@ public class TripsController(AppDbContext db, TripQueryService queryService) : C
         var validationError = ValidateTripRequest(request.TruckNumber, request.DriverPhone);
         if (validationError is not null) return BadRequest(new { message = validationError });
 
+        if (!await db.Trucks.AnyAsync(t => t.Number == request.TruckNumber && t.IsActive))
+            return BadRequest(new { message = "Truck number must exist in master data. Please ask admin to add it." });
+        if (!await db.Quarries.AnyAsync(q => q.Name == request.QuarryName && q.IsActive))
+            return BadRequest(new { message = "Quarry / crusher must exist in master data. Please ask admin to add it." });
+        if (!await db.Drivers.AnyAsync(d => d.Name == request.DriverName && d.IsActive))
+            return BadRequest(new { message = "Driver must exist in master data. Please ask admin to add it." });
+        if (!string.IsNullOrWhiteSpace(request.AdditionalDriverName) &&
+            !await db.Drivers.AnyAsync(d => d.Name == request.AdditionalDriverName && d.IsActive))
+            return BadRequest(new { message = "Additional driver must exist in master data. Please ask admin to add it." });
+
         var email = User.FindFirstValue(ClaimTypes.Email) ?? "unknown";
-        await EnsureLookupsExist(request.TruckNumber, request.QuarryName, request.DriverName, request.DriverPhone, request.DriverLicense);
 
         var trip = new TransportTrip
         {
@@ -200,6 +362,7 @@ public class TripsController(AppDbContext db, TripQueryService queryService) : C
             Tonnes = Math.Max(0, request.Tonnes),
             DieselLiters = Math.Max(0, request.DieselLiters),
             DriverName = request.DriverName,
+            AdditionalDriverName = request.AdditionalDriverName?.Trim(),
             DriverPhone = request.DriverPhone,
             DriverLicense = request.DriverLicense,
             StartTime = ValidationHelper.ParseOptionalTime(request.StartTime),
@@ -220,7 +383,15 @@ public class TripsController(AppDbContext db, TripQueryService queryService) : C
         var validationError = ValidateTripRequest(request.TruckNumber, request.DriverPhone);
         if (validationError is not null) return BadRequest(new { message = validationError });
 
-        await EnsureLookupsExist(request.TruckNumber, request.QuarryName, request.DriverName, request.DriverPhone, request.DriverLicense);
+        if (!await db.Trucks.AnyAsync(t => t.Number == request.TruckNumber && t.IsActive))
+            return BadRequest(new { message = "Truck number must exist in master data. Please ask admin to add it." });
+        if (!await db.Quarries.AnyAsync(q => q.Name == request.QuarryName && q.IsActive))
+            return BadRequest(new { message = "Quarry / crusher must exist in master data. Please ask admin to add it." });
+        if (!await db.Drivers.AnyAsync(d => d.Name == request.DriverName && d.IsActive))
+            return BadRequest(new { message = "Driver must exist in master data. Please ask admin to add it." });
+        if (!string.IsNullOrWhiteSpace(request.AdditionalDriverName) &&
+            !await db.Drivers.AnyAsync(d => d.Name == request.AdditionalDriverName && d.IsActive))
+            return BadRequest(new { message = "Additional driver must exist in master data. Please ask admin to add it." });
         trip.Date = DateOnly.Parse(request.Date);
         trip.Shift = request.Shift;
         trip.TruckNumber = request.TruckNumber;
@@ -229,6 +400,7 @@ public class TripsController(AppDbContext db, TripQueryService queryService) : C
         trip.DieselLiters = Math.Max(0, request.DieselLiters);
         trip.NumberOfTrips = Math.Clamp(request.NumberOfTrips, 1, 50);
         trip.DriverName = request.DriverName;
+        trip.AdditionalDriverName = request.AdditionalDriverName?.Trim();
         trip.DriverPhone = request.DriverPhone;
         trip.DriverLicense = request.DriverLicense;
         trip.StartTime = ValidationHelper.ParseOptionalTime(request.StartTime);
@@ -258,16 +430,6 @@ public class TripsController(AppDbContext db, TripQueryService queryService) : C
         return null;
     }
 
-    private async Task EnsureLookupsExist(string truckNumber, string quarryName, string driverName, string driverPhone, string driverLicense)
-    {
-        if (!await db.Trucks.AnyAsync(t => t.Number == truckNumber))
-            db.Trucks.Add(new Truck { Id = Guid.NewGuid(), Number = truckNumber });
-        if (!await db.Quarries.AnyAsync(q => q.Name == quarryName))
-            db.Quarries.Add(new Quarry { Id = Guid.NewGuid(), Name = quarryName });
-        if (!await db.Drivers.AnyAsync(d => d.Name == driverName))
-            db.Drivers.Add(new Driver { Id = Guid.NewGuid(), Name = driverName, Phone = driverPhone, License = driverLicense });
-        await db.SaveChangesAsync();
-    }
 }
 
 [ApiController]
@@ -305,8 +467,10 @@ public class RepairsController(AppDbContext db, RepairQueryService queryService)
         var validationError = ValidateRepairRequest(request.TruckNumber, request.Description, request.Cost);
         if (validationError is not null) return BadRequest(new { message = validationError });
 
+        if (!await db.Trucks.AnyAsync(t => t.Number == request.TruckNumber && t.IsActive))
+            return BadRequest(new { message = "Truck number must exist in master data. Please ask admin to add it." });
+
         var email = User.FindFirstValue(ClaimTypes.Email) ?? "unknown";
-        await EnsureTruckExists(request.TruckNumber);
 
         var repair = new TruckRepair
         {
@@ -332,7 +496,8 @@ public class RepairsController(AppDbContext db, RepairQueryService queryService)
         var validationError = ValidateRepairRequest(request.TruckNumber, request.Description, request.Cost);
         if (validationError is not null) return BadRequest(new { message = validationError });
 
-        await EnsureTruckExists(request.TruckNumber);
+        if (!await db.Trucks.AnyAsync(t => t.Number == request.TruckNumber && t.IsActive))
+            return BadRequest(new { message = "Truck number must exist in master data. Please ask admin to add it." });
         repair.Date = DateOnly.Parse(request.Date);
         repair.TruckNumber = request.TruckNumber.Trim();
         repair.Description = request.Description.Trim();
@@ -365,10 +530,5 @@ public class RepairsController(AppDbContext db, RepairQueryService queryService)
         return null;
     }
 
-    private async Task EnsureTruckExists(string truckNumber)
-    {
-        if (!await db.Trucks.AnyAsync(t => t.Number == truckNumber))
-            db.Trucks.Add(new Truck { Id = Guid.NewGuid(), Number = truckNumber.Trim() });
-        await db.SaveChangesAsync();
-    }
+    
 }

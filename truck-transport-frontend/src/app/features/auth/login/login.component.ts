@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { environment } from '../../../../environments/environment';
 
@@ -9,7 +9,7 @@ type AuthMode = 'login' | 'register';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
@@ -89,5 +89,9 @@ export class LoginComponent {
         this.errorMessage.set('Unable to reach the server. Please try again.');
       },
     });
+  }
+
+  goToForgot(): void {
+    this.router.navigate(['/forgot']);
   }
 }

@@ -4,6 +4,10 @@ import { catchError, map, Observable, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthUser, LoginRequest, RegisterRequest } from '../models/user.model';
 
+interface ForgotPasswordResponse {
+  message: string;
+}
+
 const AUTH_KEY = 'transport_auth';
 
 interface StoredUser extends AuthUser {}
@@ -43,6 +47,24 @@ export class AuthService {
       map(() => ({ success: true })),
       catchError((err: HttpErrorResponse) =>
         of({ success: false, message: err.error?.message ?? 'Registration failed.' })
+      )
+    );
+  }
+
+  forgotPassword(request: { email: string }): Observable<{ success: boolean; message?: string }> {
+    return this.http.post<ForgotPasswordResponse>(`${environment.apiUrl}/auth/forgot`, request).pipe(
+      map((response) => ({ success: true, message: response.message })),
+      catchError((err: HttpErrorResponse) =>
+        of({ success: false, message: err.error?.message ?? 'Unable to send password reset instructions.' })
+      )
+    );
+  }
+
+  resetPassword(request: { email: string; password: string; confirmPassword: string }): Observable<{ success: boolean; message?: string }> {
+    return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/reset-password`, request).pipe(
+      map((response) => ({ success: true, message: response.message })),
+      catchError((err: HttpErrorResponse) =>
+        of({ success: false, message: err.error?.message ?? 'Unable to reset password.' })
       )
     );
   }

@@ -39,7 +39,7 @@ public class TripQueryService(AppDbContext db)
         if (!string.IsNullOrWhiteSpace(filter.QuarryName))
             query = query.Where(t => t.QuarryName == filter.QuarryName);
         if (!string.IsNullOrWhiteSpace(filter.DriverName))
-            query = query.Where(t => t.DriverName == filter.DriverName);
+            query = query.Where(t => t.DriverName == filter.DriverName || t.AdditionalDriverName == filter.DriverName);
         if (filter.MinTonnes.HasValue)
             query = query.Where(t => t.Tonnes >= filter.MinTonnes.Value);
         if (filter.MaxTonnes.HasValue)
@@ -51,6 +51,7 @@ public class TripQueryService(AppDbContext db)
     public static TripDto ToDto(TransportTrip t) => new(
         t.Id, t.Date.ToString("yyyy-MM-dd"), t.Shift, t.TruckNumber, t.QuarryName,
         t.NumberOfTrips, t.Tonnes, t.DieselLiters, t.DriverName, t.DriverPhone, t.DriverLicense,
+        t.AdditionalDriverName,
         t.StartTime?.ToString("HH:mm") ?? string.Empty,
         t.EndTime?.ToString("HH:mm") ?? string.Empty,
         t.CreatedBy, t.CreatedAt.ToString("o"));

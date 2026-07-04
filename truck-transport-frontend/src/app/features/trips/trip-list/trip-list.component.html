@@ -129,7 +129,9 @@
           <th>Tonnes</th>
           <th>Diesel (L)</th>
           <th>Driver</th>
+          <th>Additional Driver</th>
           <th>Phone</th>
+          <th>Recorded By</th>
           <th>Start</th>
           <th>End</th>
           <th>Actions</th>
@@ -146,7 +148,9 @@
             <td>{{ trip.tonnes | number: '1.2-2' }}</td>
             <td>{{ trip.dieselLiters | number: '1.2-2' }}</td>
             <td>{{ trip.driverName }}</td>
+            <td>{{ trip.additionalDriverName || '—' }}</td>
             <td>{{ trip.driverPhone }}</td>
+            <td>{{ trip.createdBy }}</td>
             <td>{{ trip.startTime || '—' }}</td>
             <td>{{ trip.endTime || '—' }}</td>
             <td class="actions">
@@ -158,7 +162,7 @@
           </tr>
         } @empty {
           <tr>
-            <td colspan="12" class="empty-row">No records match your filter criteria.</td>
+            <td colspan="13" class="empty-row">No records match your filter criteria.</td>
           </tr>
         }
       </tbody>
@@ -181,7 +185,9 @@
           <div><dt>Trips</dt><dd>{{ trip.numberOfTrips }}</dd></div>
           <div><dt>Diesel</dt><dd>{{ trip.dieselLiters | number: '1.2-2' }} L</dd></div>
           <div><dt>Driver</dt><dd>{{ trip.driverName }}</dd></div>
+            <div><dt>Additional Driver</dt><dd>{{ trip.additionalDriverName || '—' }}</dd></div>
           <div><dt>Phone</dt><dd>{{ trip.driverPhone }}</dd></div>
+          <div><dt>Recorded by</dt><dd>{{ trip.createdBy }}</dd></div>
           <div><dt>Time</dt><dd>{{ trip.startTime || '—' }} – {{ trip.endTime || '—' }}</dd></div>
         </dl>
         <div class="trip-card-actions">

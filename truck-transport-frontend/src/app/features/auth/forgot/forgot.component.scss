@@ -1,0 +1,85 @@
+ .forgot-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.forgot-backdrop {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(10px);
+  transform: scale(1.03);
+}
+
+.forgot-backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.18), rgba(15, 23, 42, 0.75));
+}
+
+.forgot-card {
+  position: relative;
+  z-index: 1;
+  width: min(32rem, 100%);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 1rem;
+  box-shadow: 0 22px 50px rgba(15, 23, 42, 0.16);
+}
+
+ .forgot-card header h2 {
+  margin: 0 0 0.5rem;
+}
+
+.forgot-card .muted {
+  color: var(--text-muted);
+}
+
+.forgot-card label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+ .forgot-card .actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+ .forgot-card .actions .btn {
+  flex: 1;
+}
+
+ .forgot-card .notice {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--surface-100);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+/* reset code display styles removed; using simple input-only flow */
+
+@media (max-width: 700px) {
+  .forgot-page {
+    padding: 1rem;
+  }
+
+  .forgot-card {
+    width: 100%;
+    padding: 1.5rem;
+  }
+}

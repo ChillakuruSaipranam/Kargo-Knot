@@ -5,12 +5,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { LookupService } from '../../../core/services/lookup.service';
 import { TransportService } from '../../../core/services/transport.service';
 import { LookupItem } from '../../../core/models/lookup.model';
-import {
-  indianPhoneValidator,
-  indianVehicleValidator,
-  isValidIndianPhone,
-  isValidIndianVehicle,
-} from '../../../core/validators/india.validators';
+import { indianPhoneValidator, indianVehicleValidator } from '../../../core/validators/india.validators';
 
 @Component({
   selector: 'app-trip-form',
@@ -37,11 +32,6 @@ export class TripFormComponent implements OnInit {
   readonly quarries = signal<LookupItem[]>([]);
   readonly drivers = signal<LookupItem[]>([]);
 
-  readonly newTruckNumber = signal('');
-  readonly newQuarryName = signal('');
-  readonly newDriverName = signal('');
-  readonly newDriverPhone = signal('');
-  readonly newDriverLicense = signal('');
 
   readonly form = this.fb.nonNullable.group({
     date: ['', Validators.required],
@@ -52,6 +42,7 @@ export class TripFormComponent implements OnInit {
     tonnes: [0, [Validators.min(0)]],
     dieselLiters: [0, [Validators.min(0)]],
     driverName: ['', Validators.required],
+    additionalDriverName: [''],
     driverPhone: ['', [Validators.required, indianPhoneValidator()]],
     driverLicense: ['', Validators.required],
     startTime: [''],
@@ -90,74 +81,6 @@ export class TripFormComponent implements OnInit {
     }
   }
 
-  addTruck(): void {
-    const number = this.newTruckNumber().trim();
-    if (!number) {
-      this.lookupError.set('Truck number is required.');
-      return;
-    }
-    if (!isValidIndianVehicle(number)) {
-      this.lookupError.set('Enter a valid Indian vehicle number (e.g. MH-12-AB-4521).');
-      return;
-    }
-
-    this.lookupService.createTruck(number).subscribe({
-      next: (item) => {
-        this.trucks.update((items) => this.sortByLabel([...items, item]));
-        this.form.patchValue({ truckNumber: item.label });
-        this.newTruckNumber.set('');
-        this.lookupError.set('');
-      },
-      error: () => this.lookupError.set('Unable to add truck number.'),
-    });
-  }
-
-  addQuarry(): void {
-    const name = this.newQuarryName().trim();
-    if (!name) {
-      return;
-    }
-
-    this.lookupService.createQuarry(name).subscribe({
-      next: (item) => {
-        this.quarries.update((items) => this.sortByLabel([...items, item]));
-        this.form.patchValue({ quarryName: item.label });
-        this.newQuarryName.set('');
-        this.lookupError.set('');
-      },
-      error: () => this.lookupError.set('Unable to add quarry / crusher.'),
-    });
-  }
-
-  addDriver(): void {
-    const name = this.newDriverName().trim();
-    const phone = this.newDriverPhone().trim();
-    const license = this.newDriverLicense().trim();
-    if (!name || !phone || !license) {
-      this.lookupError.set('Driver name, phone, and license are required.');
-      return;
-    }
-    if (!isValidIndianPhone(phone)) {
-      this.lookupError.set('Enter a valid Indian mobile number (10 digits, e.g. +91 98765 43210).');
-      return;
-    }
-
-    this.lookupService.createDriver(name, phone, license).subscribe({
-      next: (item) => {
-        this.drivers.update((items) => this.sortByLabel([...items, item]));
-        this.form.patchValue({
-          driverName: item.label,
-          driverPhone: item.phone ?? phone,
-          driverLicense: item.license ?? license,
-        });
-        this.newDriverName.set('');
-        this.newDriverPhone.set('');
-        this.newDriverLicense.set('');
-        this.lookupError.set('');
-      },
-      error: () => this.lookupError.set('Unable to add driver.'),
-    });
-  }
 
   submit(): void {
     if (this.form.invalid) {
@@ -196,6 +119,7 @@ export class TripFormComponent implements OnInit {
             tonnes: 0,
             dieselLiters: 0,
             driverName: '',
+            additionalDriverName: '',
             driverPhone: '',
             driverLicense: '',
             startTime: '',

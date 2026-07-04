@@ -5,36 +5,13 @@
     aria-hidden="true"
   ></div>
 
-  <section class="login-hero">
-    <div class="hero-content">
-      <img [src]="logoUrl" alt="DRR Transport logo" class="brand-logo" width="120" height="120" />
-      <p class="hero-eyebrow">Fleet Operations Portal</p>
-      <h1>DRR Transport</h1>
-      <p class="hero-copy">Duvvuru Ramchandra Reddy - quarry and crusher logistics management for your fleet.</p>
-      <ul>
-        <li>Trip registration with driver and load details</li>
-        <li>Day and night shift tracking</li>
-        <li>Repair records, filtering, and operational reporting</li>
-      </ul>
-    </div>
-  </section>
-
   <section class="login-card">
     <div class="login-card-brand mobile-brand">
-      <img [src]="logoUrl" alt="" class="brand-logo-sm" width="56" height="56" />
+      <img [src]="logoUrl" alt="DRR Transport" class="brand-logo-sm" width="110" height="110" />
       <div>
         <strong>DRR Transport</strong>
         <span>Operations Portal</span>
       </div>
-    </div>
-
-    <div class="auth-tabs">
-      <button type="button" class="auth-tab" [class.active]="mode() === 'login'" (click)="setMode('login')">
-        Sign In
-      </button>
-      <button type="button" class="auth-tab" [class.active]="mode() === 'register'" (click)="setMode('register')">
-        Register
-      </button>
     </div>
 
     @if (mode() === 'login') {
@@ -69,10 +46,9 @@
         </button>
       </form>
 
-      <div class="demo-credentials">
-        <p><strong>Demo Accounts</strong></p>
-        <p>Admin: admin&#64;transport.com / admin123</p>
-        <p>User: user&#64;transport.com / user123</p>
+      <div class="auth-footer">
+        <button type="button" class="forgot-btn" (click)="goToForgot()">Forgot Password?</button>
+        <button type="button" class="link-small btn-link" (click)="setMode('register')">Create Account</button>
       </div>
     } @else {
       <header>
@@ -113,6 +89,10 @@
           {{ isSubmitting() ? 'Creating account...' : 'Create Account' }}
         </button>
       </form>
+
+      <div class="auth-footer">
+        <button type="button" class="link-small btn-link" (click)="setMode('login')">Back to Sign In</button>
+      </div>
     }
   </section>
 </div>

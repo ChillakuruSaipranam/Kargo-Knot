@@ -29,23 +29,14 @@
       </label>
     </div>
 
-    <label class="field-with-add">
+    <label>
       <span>Truck Number</span>
-      <div class="inline-add">
-        <select formControlName="truckNumber">
-          <option value="">Select truck</option>
-          @for (truck of trucks(); track truck.id) {
-            <option [value]="truck.label">{{ truck.label }}</option>
-          }
-        </select>
-        <input
-          type="text"
-          placeholder="New truck (e.g. MH-12-AB-4521)"
-          [value]="newTruckNumber()"
-          (input)="newTruckNumber.set($any($event.target).value)"
-        />
-        <button class="btn btn-secondary" type="button" (click)="addTruck()">Add</button>
-      </div>
+      <select formControlName="truckNumber">
+        <option value="">Select truck</option>
+        @for (truck of trucks(); track truck.id) {
+          <option [value]="truck.label">{{ truck.label }}</option>
+        }
+      </select>
       @if (hasError('truckNumber', 'required')) {
         <span class="field-error">Truck number is required.</span>
       } @else if (hasError('truckNumber', 'indianVehicle')) {

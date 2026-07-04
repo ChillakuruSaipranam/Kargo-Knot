@@ -44,6 +44,7 @@ public class TransportTrip
     public decimal Tonnes { get; set; }
     public decimal DieselLiters { get; set; }
     public string DriverName { get; set; } = string.Empty;
+    public string? AdditionalDriverName { get; set; }
     public string DriverPhone { get; set; } = string.Empty;
     public string DriverLicense { get; set; } = string.Empty;
     public TimeOnly? StartTime { get; set; }

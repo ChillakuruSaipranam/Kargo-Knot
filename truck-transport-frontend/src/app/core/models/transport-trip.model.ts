@@ -10,6 +10,7 @@ export interface TransportTrip {
   tonnes: number;
   dieselLiters: number;
   driverName: string;
+  additionalDriverName: string;
   driverPhone: string;
   driverLicense: string;
   startTime: string;

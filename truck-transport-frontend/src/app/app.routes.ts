@@ -9,6 +9,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login.component').then((m) => m.LoginComponent),
   },
   {
+    path: 'forgot',
+    loadComponent: () => import('./features/auth/forgot/forgot.component').then((m) => m.ForgotComponent),
+  },
+  {
     path: '',
     component: MainLayoutComponent,
     canActivate: [authGuard],

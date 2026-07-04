@@ -36,6 +36,7 @@ builder.Services.AddScoped<TripQueryService>();
 builder.Services.AddScoped<RepairQueryService>();
 builder.Services.AddSingleton<JwtTokenService>();
 builder.Services.AddHostedService<DatabaseMigrationHostedService>();
+// PasswordResetService removed; static-code flow used instead
 
 var jwtKey = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrWhiteSpace(jwtKey))

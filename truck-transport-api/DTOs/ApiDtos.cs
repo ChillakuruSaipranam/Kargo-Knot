@@ -2,23 +2,28 @@ namespace TruckTransportApi.DTOs;
 
 public record LoginRequest(string Email, string Password);
 public record SignupRequest(string Email, string Password, string FullName);
+public record ForgotPasswordRequest(string Email);
+public record ResetPasswordRequest(string Email, string Password, string ConfirmPassword);
 public record UserDto(Guid Id, string Email, string FullName, string Role);
 public record LoginResponse(string Token, UserDto User);
 
 public record TripDto(
     Guid Id, string Date, string Shift, string TruckNumber, string QuarryName,
     int NumberOfTrips, decimal Tonnes, decimal DieselLiters, string DriverName, string DriverPhone, string DriverLicense,
+    string? AdditionalDriverName,
     string StartTime, string EndTime, string CreatedBy, string CreatedAt);
 
 public record CreateTripRequest(
     string Date, string Shift, string TruckNumber, string QuarryName, decimal Tonnes,
     decimal DieselLiters, string DriverName, string DriverPhone, string DriverLicense,
-    string StartTime, string EndTime, int NumberOfTrips = 1);
+    string StartTime, string EndTime, int NumberOfTrips = 1,
+    string? AdditionalDriverName = null);
 
 public record UpdateTripRequest(
     string Date, string Shift, string TruckNumber, string QuarryName, decimal Tonnes,
     decimal DieselLiters, string DriverName, string DriverPhone, string DriverLicense,
-    string StartTime, string EndTime, int NumberOfTrips = 1);
+    string StartTime, string EndTime, int NumberOfTrips = 1,
+    string? AdditionalDriverName = null);
 
 public record CreateTruckRequest(string Number);
 public record CreateQuarryRequest(string Name);
