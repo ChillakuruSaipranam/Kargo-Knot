@@ -375,10 +375,16 @@ public class TripsController(AppDbContext db, TripQueryService queryService) : C
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize]
     public async Task<ActionResult<TripDto>> Update(Guid id, [FromBody] UpdateTripRequest request)
     {
         var trip = await db.Trips.FindAsync(id);
         if (trip is null) return NotFound();
+
+        var userEmail = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
+        var isAdmin = User.IsInRole("Admin");
+        if (!isAdmin && !string.Equals(trip.CreatedBy, userEmail, StringComparison.OrdinalIgnoreCase))
+            return StatusCode(403, new { message = "You do not have permission to edit this trip." });
 
         var validationError = ValidateTripRequest(request.TruckNumber, request.DriverPhone);
         if (validationError is not null) return BadRequest(new { message = validationError });

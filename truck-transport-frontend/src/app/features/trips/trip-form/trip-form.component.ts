@@ -129,7 +129,17 @@ export class TripFormComponent implements OnInit {
 
         setTimeout(() => this.router.navigate(['/trips']), 900);
       },
-      error: () => this.loadError.set('Unable to save trip record.'),
+      error: (err) => {
+    if (this.isEditMode && err.status === 403) {
+      this.loadError.set('You do not have permission to edit this trip record.');
+    } else {
+      this.loadError.set(
+        this.isEditMode
+          ? 'Unable to update trip record.'
+          : 'Unable to save trip record.'
+      );
+    }
+  },
     });
   }
 
